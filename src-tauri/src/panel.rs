@@ -2,7 +2,7 @@
 
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
-use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewWindow};
+use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewWindow, WindowEvent};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 
@@ -20,6 +20,18 @@ pub fn show<R: Runtime>(app: &AppHandle<R>) {
         // The page fades itself in on this.
         let _ = w.emit("panel-shown", ());
     }
+}
+
+/// Focus mode: the panel is a quick-capture popup, so clicking anywhere else
+/// (or switching apps) puts it away. Notes save as you type; nothing is lost.
+pub fn hide_on_blur<R: Runtime>(app: &AppHandle<R>) {
+    let Some(w) = window(app) else { return };
+    let panel = w.clone();
+    w.on_window_event(move |event| {
+        if let WindowEvent::Focused(false) = event {
+            let _ = panel.hide();
+        }
+    });
 }
 
 /// Hides the panel if visible, otherwise shows it.

@@ -107,6 +107,7 @@ pub fn run() {
             let handle = app.handle();
             panel::register_hotkey(handle)?;
             panel::build_tray(handle)?;
+            panel::hide_on_blur(handle);
             // `noted --hidden` (e.g. at login) loads the panel off screen, so
             // the first hotkey press shows it instantly instead of cold-starting.
             if !std::env::args().any(|a| a == "--hidden") {

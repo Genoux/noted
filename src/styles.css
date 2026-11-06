@@ -6,7 +6,7 @@
   /* Dark only: Noted has a single appearance. */
   --text: rgb(242 237 227);
   --rgb: 242 237 227;
-  --tint: rgb(0 0 0 / 0.5);
+  --tint: rgb(18 18 18 / 0.82); /* solid enough that what's behind doesn't compete */
   --sheet: rgb(20 20 20 / 0.96);
   --pill: rgb(41 41 41);
   --tab-active: rgb(255 255 255 / 0.1);
