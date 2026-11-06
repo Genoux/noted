@@ -42,9 +42,83 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
-/* Invisible strip along the top so the panel can be dragged. */
-.drag {
-  flex: 0 0 28px;
+/* Tab strip; its empty space doubles as the drag handle. */
+#tabs {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 2px;
+  align-items: center;
+  min-height: 30px;
+  padding: 10px 64px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  font-size: 13px;
+  user-select: none;
+}
+
+.tab {
+  display: flex;
+  flex: 0 1 auto;
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+  max-width: 200px;
+  padding: 4px 6px 4px 10px;
+  border-radius: 7px;
+  color: var(--muted);
+  cursor: default;
+}
+
+.tab:hover {
+  background: var(--code-bg);
+}
+
+.tab[aria-selected="true"] {
+  color: var(--fg);
+  background: var(--code-bg);
+}
+
+.tab-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-close,
+.tab-new {
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  line-height: 1;
+  cursor: default;
+}
+
+.tab-close {
+  width: 16px;
+  height: 16px;
+  font-size: 14px;
+  visibility: hidden;
+}
+
+.tab:hover .tab-close,
+.tab[aria-selected="true"] .tab-close {
+  visibility: visible;
+}
+
+.tab-close:hover,
+.tab-new:hover {
+  color: var(--fg);
+  background: var(--border);
+}
+
+.tab-new {
+  width: 24px;
+  height: 24px;
+  font-size: 17px;
 }
 
 #editor {

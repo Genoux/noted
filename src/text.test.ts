@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countWords, isoDate, toggleTask, toggleWrap } from "./text";
+import { countWords, isoDate, tabTitle, toggleTask, toggleWrap } from "./text";
 
 describe("countWords", () => {
   it("counts whitespace-separated words", () => {
@@ -33,5 +33,18 @@ describe("toggleWrap", () => {
 describe("isoDate", () => {
   it("pads month and day", () => {
     expect(isoDate(new Date(2026, 0, 5))).toBe("2026-01-05");
+  });
+});
+
+describe("tabTitle", () => {
+  it("uses the first non-empty line without markdown", () => {
+    expect(tabTitle("\n\n# Groceries & ideas\nmore")).toBe("Groceries & ideas");
+    expect(tabTitle("- [ ] call the **dentist**")).toBe("call the dentist");
+    expect(tabTitle("> quoted")).toBe("quoted");
+    expect(tabTitle("---\nafter divider")).toBe("after divider");
+  });
+  it("falls back and truncates", () => {
+    expect(tabTitle("  \n")).toBe("Untitled");
+    expect(tabTitle("a".repeat(40))).toBe(`${"a".repeat(23)}…`);
   });
 });
