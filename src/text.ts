@@ -73,3 +73,11 @@ export function reminderLabel(atIso: string, sent: boolean, now: Date): string {
       : `${at.toLocaleString("en", { month: "short" })} ${at.getDate()} `;
   return `⏰ ${day}${time}`;
 }
+
+/** Text sizes the Aa button steps through: small, medium, large, extra large. */
+export const TEXT_SIZES = [18, 22, 26, 32] as const;
+
+/** The next preset above `current`, wrapping back to the smallest. */
+export function nextTextSize(current: number): number {
+  return TEXT_SIZES.find((s) => s > current) ?? TEXT_SIZES[0];
+}

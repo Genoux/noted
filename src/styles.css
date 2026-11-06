@@ -286,3 +286,28 @@ footer {
   user-select: none;
   cursor: default;
 }
+
+.footer-actions {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+/* Aa grows with the text size, like a level indicator. */
+#text-size {
+  min-width: 24px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font:
+    500 calc(var(--font-size, 22px) * 0.55) / 1 Charter,
+    Georgia,
+    serif;
+  cursor: default;
+}
+
+#text-size:hover {
+  color: var(--fg);
+}

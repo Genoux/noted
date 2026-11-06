@@ -2,7 +2,7 @@
 
 import { EditorSelection } from "@codemirror/state";
 import type { EditorView, KeyBinding } from "@codemirror/view";
-import { isoDate, toggleWrap } from "../text";
+import { isoDate, nextTextSize, toggleWrap } from "../text";
 import { toggleTaskCommand } from "./tasks";
 
 function wrapWith(mark: string) {
@@ -43,6 +43,11 @@ function readFontSize(): number {
   } catch {
     return FONT_DEFAULT;
   }
+}
+
+/** Steps to the next preset size; used by the footer's Aa button. */
+export function cycleFontSize(): void {
+  setFontSize(nextTextSize(readFontSize()));
 }
 
 function setFontSize(size: number): boolean {

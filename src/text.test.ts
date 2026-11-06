@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   countWords,
   isoDate,
+  nextTextSize,
   REMINDER_RE,
   reminderLabel,
   tabTitle,
@@ -73,5 +74,15 @@ describe("reminders", () => {
     expect(reminderLabel("2026-11-07T09:00:00", false, now)).toBe("⏰ Sat 9:00 AM");
     expect(reminderLabel("2026-11-20T00:05:00", false, now)).toBe("⏰ Nov 20 12:05 AM");
     expect(reminderLabel("2026-11-06T12:00:00", true, now)).toBe("✓ sent");
+  });
+});
+
+describe("nextTextSize", () => {
+  it("steps up through presets and wraps", () => {
+    expect(nextTextSize(18)).toBe(22);
+    expect(nextTextSize(22)).toBe(26);
+    expect(nextTextSize(32)).toBe(18);
+    expect(nextTextSize(24)).toBe(26); // between presets, e.g. after ⌘=
+    expect(nextTextSize(40)).toBe(18);
   });
 });

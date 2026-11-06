@@ -2,6 +2,7 @@ import type { EditorState } from "@codemirror/state";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { cycleFontSize } from "./editor/commands";
 import { setReminderLabels } from "./editor/reminders";
 import { createEditor } from "./editor/setup";
 import { renderTabs } from "./tabs";
@@ -190,6 +191,11 @@ select(remembered && states.has(remembered) ? remembered : order[0]);
 
 // A reminder fired: its status changes to "sent".
 void listen("reminders-changed", () => void refreshReminders());
+
+requireEl<HTMLButtonElement>("#text-size").addEventListener("mousedown", (e) => {
+  e.preventDefault(); // Keep focus (and the caret) in the editor.
+  cycleFontSize();
+});
 
 // Flush pending saves whenever the panel loses focus or hides.
 window.addEventListener("blur", flush);
