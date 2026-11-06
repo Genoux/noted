@@ -7,7 +7,8 @@
 use tauri::{Runtime, WebviewWindow};
 
 /// Matches `border-radius` on `body` in styles.css.
-pub const RADIUS: f64 = 18.0;
+#[cfg(target_os = "macos")]
+const RADIUS: f64 = 18.0;
 
 #[cfg(target_os = "macos")]
 #[allow(unsafe_code)]
