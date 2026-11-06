@@ -216,9 +216,3 @@ footerButton("#help", toggleHelp);
 // Flush pending saves whenever the panel loses focus or hides.
 window.addEventListener("blur", flush);
 window.addEventListener("focus", () => editor.view.focus());
-// Fade in each time the panel is summoned (not on every refocus).
-void listen("panel-shown", () => {
-  document.body.classList.remove("appear");
-  void document.body.offsetWidth; // Restart the animation.
-  document.body.classList.add("appear");
-});
