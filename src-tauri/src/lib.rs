@@ -23,6 +23,7 @@ fn save_note(store: State<'_, NoteStore>, text: &str) -> CmdResult<()> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let result = tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             app.manage(NoteStore::open(dir)?);
@@ -44,10 +45,21 @@ pub fn run() {
             }
         })
         .invoke_handler(tauri::generate_handler![load_note, save_note])
-        .run(tauri::generate_context!());
+        .build(tauri::generate_context!());
 
-    if let Err(e) = result {
-        eprintln!("noted failed to start: {e}");
-        std::process::exit(1);
+    match result {
+        Ok(app) => app.run(|app, event| {
+            // Opening the app again (Spotlight, Finder, `open`) shows the panel.
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen { .. } = event {
+                panel::show(app);
+            }
+            #[cfg(not(target_os = "macos"))]
+            let _ = (app, event);
+        }),
+        Err(e) => {
+            eprintln!("noted failed to start: {e}");
+            std::process::exit(1);
+        }
     }
 }

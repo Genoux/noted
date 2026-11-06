@@ -8,17 +8,27 @@
     "build": "tsc && vite build",
     "tauri": "tauri",
     "typecheck": "tsc",
-    "lint": "biome check .",
-    "format": "biome check --write ."
+    "lint": "biome check --error-on-warnings .",
+    "format": "biome check --write .",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2"
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/lang-markdown": "^6.5.2",
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/search": "^6.7.2",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
+    "@lezer/highlight": "^1.2.5",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-opener": "^2.7.2"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.6",
     "@tauri-apps/cli": "^2",
     "typescript": "~6.0.3",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "vitest": "^5.1.0"
   },
   "packageManager": "pnpm@10.12.4",
   "engines": {
