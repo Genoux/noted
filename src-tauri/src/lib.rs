@@ -3,6 +3,7 @@
 mod corners;
 mod panel;
 mod reminders;
+mod remote;
 
 use noted_core::NoteStore;
 use noted_core::reminder::{Entry, local_now};
@@ -71,13 +72,11 @@ fn tab_reminders(reminders: State<'_, Reminders>, id: &str) -> Vec<Entry> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Already running: toggle that panel and exit before Tauri starts.
+    if remote::toggle_running() {
+        return;
+    }
     let result = tauri::Builder::default()
-        // Launching Noted again toggles the running panel. Wayland gives apps
-        // no global hotkeys, so a compositor bind running `noted` is the
-        // hotkey there. Must be the first plugin registered.
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            panel::toggle(app);
-        }))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
         // Remembers where the panel was and how big, like Wisp.
@@ -108,6 +107,7 @@ pub fn run() {
             panel::register_hotkey(handle)?;
             panel::build_tray(handle)?;
             panel::hide_on_blur(handle);
+            remote::listen(handle);
             // `noted --hidden` (e.g. at login) loads the panel off screen, so
             // the first hotkey press shows it instantly instead of cold-starting.
             if !std::env::args().any(|a| a == "--hidden") {
