@@ -72,6 +72,12 @@ fn tab_reminders(reminders: State<'_, Reminders>, id: &str) -> Vec<Entry> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let result = tauri::Builder::default()
+        // Launching Noted again toggles the running panel. Wayland gives apps
+        // no global hotkeys, so a compositor bind running `noted` is the
+        // hotkey there. Must be the first plugin registered.
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            panel::toggle(app);
+        }))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
         // Remembers where the panel was and how big, like Wisp.
