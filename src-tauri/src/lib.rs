@@ -1,5 +1,6 @@
 //! Tauri shell: wires the window and IPC commands to `noted-core`.
 
+mod corners;
 mod panel;
 mod reminders;
 
@@ -92,6 +93,10 @@ pub fn run() {
             // Menu bar utility: no Dock icon, no app menu.
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
+            if let Some(window) = app.get_webview_window("main") {
+                corners::round(&window);
+            }
 
             let handle = app.handle();
             panel::register_hotkey(handle)?;

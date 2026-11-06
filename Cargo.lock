@@ -2172,6 +2172,9 @@ name = "noted"
 version = "0.0.0"
 dependencies = [
  "noted-core",
+ "objc2",
+ "objc2-app-kit",
+ "objc2-quartz-core",
  "tauri",
  "tauri-build",
  "tauri-plugin-global-shortcut",
