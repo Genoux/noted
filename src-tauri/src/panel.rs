@@ -35,14 +35,20 @@ pub fn hide_on_close<R: Runtime>(app: &AppHandle<R>) {
     });
 }
 
-/// Hides the panel if visible, otherwise shows it.
+/// Hides the focused panel; otherwise brings it up with focus.
 pub fn toggle<R: Runtime>(app: &AppHandle<R>) {
     let Some(w) = window(app) else { return };
-    if w.is_visible().unwrap_or(false) && w.is_focused().unwrap_or(false) {
+    let visible = w.is_visible().unwrap_or(false);
+    if visible && w.is_focused().unwrap_or(false) {
         let _ = w.hide();
-    } else {
-        show(app);
+        return;
     }
+    if visible {
+        // Open behind another window. Wayland ignores an app's own focus
+        // request, but compositors focus a window as it maps: remap it.
+        let _ = w.hide();
+    }
+    show(app);
 }
 
 /// Registers ⌥Space (Alt+Space) to toggle the panel from anywhere.
