@@ -1,52 +1,15 @@
 /* ---------------------------------------------------------------------------
-   Tokens. Light is the default; dark applies via the system setting
-   (unless forced light) or when forced dark from the footer toggle.
+   Tokens
    ------------------------------------------------------------------------- */
 
 :root {
-  --text: rgb(26 26 26);
-  --rgb: 26 26 26;
-  --tint: rgb(255 255 255 / 0.72); /* over the native blur: "subtle" */
-  --sheet: rgb(255 255 255 / 0.97);
-  --pill: rgb(255 255 255 / 0.99);
-  --tab-active: rgb(255 255 255 / 0.95);
-  --tab-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 0 0 0.5px rgb(0 0 0 / 0.1);
-  --caret: #000;
-  --code-bg: rgb(0 0 0 / 0.07);
-  --match: rgb(255 209 46 / 0.55);
-  --mark-alpha: 0.36;
-  --rule-alpha: 0.3;
-  --selection-alpha: 22%;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --text: rgb(242 237 227);
-    --rgb: 242 237 227;
-    --tint: rgb(0 0 0 / 0.5);
-    --sheet: rgb(20 20 20 / 0.96);
-    --pill: rgb(41 41 41);
-    --tab-active: rgb(255 255 255 / 0.1);
-    --tab-shadow: none;
-    --caret: rgb(250 247 237);
-    --code-bg: rgb(255 255 255 / 0.1);
-    --match: rgb(250 199 71 / 0.42);
-    --mark-alpha: 0.38;
-    --rule-alpha: 0.35;
-    --selection-alpha: 32%;
-    color-scheme: dark;
-  }
-}
-
-:root[data-theme="dark"] {
+  /* Dark only: Noted has a single appearance. */
   --text: rgb(242 237 227);
   --rgb: 242 237 227;
   --tint: rgb(0 0 0 / 0.5);
   --sheet: rgb(20 20 20 / 0.96);
   --pill: rgb(41 41 41);
   --tab-active: rgb(255 255 255 / 0.1);
-  --tab-shadow: none;
   --caret: rgb(250 247 237);
   --code-bg: rgb(255 255 255 / 0.1);
   --match: rgb(250 199 71 / 0.42);
@@ -164,7 +127,6 @@ button {
 .tab[aria-selected="true"] {
   color: var(--text);
   background: var(--tab-active);
-  box-shadow: var(--tab-shadow);
 }
 
 .tab-label {
@@ -410,7 +372,7 @@ footer {
   justify-content: space-between;
   align-items: center;
   height: 48px;
-  padding: 0 24px;
+  padding: 0 22px;
   color: var(--tertiary);
   font-size: 11px;
   font-variant-numeric: tabular-nums;

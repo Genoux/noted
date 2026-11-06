@@ -8,7 +8,6 @@ import { createEditor } from "./editor/setup";
 import { closeHelp, isHelpOpen, toggleHelp } from "./help";
 import { renderTabs } from "./tabs";
 import { countWords, reminderLabel, tabTitle } from "./text";
-import { applyTheme, cycleTheme } from "./theme";
 
 const SAVE_DELAY_MS = 300;
 const ACTIVE_KEY = "noted.activeTab";
@@ -209,8 +208,6 @@ function footerButton(selector: string, run: (button: HTMLButtonElement) => void
   });
 }
 
-applyTheme(requireEl<HTMLButtonElement>("#theme"));
-footerButton("#theme", cycleTheme);
 footerButton("#text-size", () => cycleFontSize(editor.view));
 footerButton("#help", toggleHelp);
 

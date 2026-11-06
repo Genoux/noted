@@ -107,7 +107,11 @@ pub fn run() {
             let handle = app.handle();
             panel::register_hotkey(handle)?;
             panel::build_tray(handle)?;
-            panel::show(handle);
+            // `noted --hidden` (e.g. at login) loads the panel off screen, so
+            // the first hotkey press shows it instantly instead of cold-starting.
+            if !std::env::args().any(|a| a == "--hidden") {
+                panel::show(handle);
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
