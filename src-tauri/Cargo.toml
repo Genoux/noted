@@ -21,4 +21,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 noted-core = { path = "../crates/core" }
-tauri = { version = "2", features = [] }
+tauri = { version = "2", features = ["macos-private-api", "tray-icon"] }
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-global-shortcut = "2"

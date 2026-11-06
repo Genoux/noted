@@ -1,7 +1,9 @@
 //! Tauri shell: wires the window and IPC commands to `noted-core`.
 
+mod panel;
+
 use noted_core::NoteStore;
-use tauri::{Manager, State};
+use tauri::{Manager, State, WindowEvent};
 
 /// Errors crossing the IPC boundary are sent to the frontend as strings.
 type CmdResult<T> = Result<T, String>;
@@ -24,7 +26,22 @@ pub fn run() {
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             app.manage(NoteStore::open(dir)?);
+
+            // Menu bar utility: no Dock icon, no app menu.
+            #[cfg(target_os = "macos")]
+            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
+            let handle = app.handle();
+            panel::register_hotkey(handle)?;
+            panel::build_tray(handle)?;
+            panel::show(handle);
             Ok(())
+        })
+        .on_window_event(|window, event| {
+            // Clicking anywhere else dismisses the panel, like a popover.
+            if let WindowEvent::Focused(false) = event {
+                let _ = window.hide();
+            }
         })
         .invoke_handler(tauri::generate_handler![load_note, save_note])
         .run(tauri::generate_context!());
