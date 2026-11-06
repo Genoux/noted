@@ -211,7 +211,7 @@ function footerButton(selector: string, run: (button: HTMLButtonElement) => void
 
 applyTheme(requireEl<HTMLButtonElement>("#theme"));
 footerButton("#theme", cycleTheme);
-footerButton("#text-size", cycleFontSize);
+footerButton("#text-size", () => cycleFontSize(editor.view));
 footerButton("#help", toggleHelp);
 
 // --- show / hide ----------------------------------------------------------

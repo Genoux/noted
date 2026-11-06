@@ -53,19 +53,22 @@ function readFontSize(): number {
   }
 }
 
-function setFontSize(size: number): boolean {
+function setFontSize(view: EditorView, size: number): boolean {
   try {
     localStorage.setItem(FONT_KEY, String(size));
   } catch {
     // Not persisted; still applied for this session.
   }
   applyFontSize(size);
+  // The size is a CSS variable, which CodeMirror can't observe: measure again
+  // so the caret and selection are redrawn at the new line height.
+  view.requestMeasure();
   return true;
 }
 
 /** The footer's Aa button: next size, wrapping around. */
-export function cycleFontSize(): void {
-  setFontSize(nextTextSize(readFontSize()));
+export function cycleFontSize(view: EditorView): void {
+  setFontSize(view, nextTextSize(readFontSize()));
 }
 
 export const commandKeymap: KeyBinding[] = [
@@ -73,8 +76,8 @@ export const commandKeymap: KeyBinding[] = [
   { key: "Mod-i", run: wrapWith("*") },
   { key: "Mod-l", run: toggleTaskCommand },
   { key: "Shift-Mod-d", run: insertDate },
-  { key: "Mod-=", run: () => setFontSize(stepTextSize(readFontSize(), 1)) },
-  { key: "Mod-+", run: () => setFontSize(stepTextSize(readFontSize(), 1)) },
-  { key: "Mod--", run: () => setFontSize(stepTextSize(readFontSize(), -1)) },
-  { key: "Mod-0", run: () => setFontSize(DEFAULT_TEXT_SIZE) },
+  { key: "Mod-=", run: (view) => setFontSize(view, stepTextSize(readFontSize(), 1)) },
+  { key: "Mod-+", run: (view) => setFontSize(view, stepTextSize(readFontSize(), 1)) },
+  { key: "Mod--", run: (view) => setFontSize(view, stepTextSize(readFontSize(), -1)) },
+  { key: "Mod-0", run: (view) => setFontSize(view, DEFAULT_TEXT_SIZE) },
 ];
