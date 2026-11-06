@@ -23,7 +23,7 @@ class StatusWidget extends WidgetType {
   toDOM() {
     const el = document.createElement("span");
     el.className = this.pending ? "cm-reminder cm-reminder-pending" : "cm-reminder";
-    el.textContent = this.label;
+    el.textContent = `   ${this.label}`;
     return el;
   }
 }
@@ -34,7 +34,7 @@ function build(state: EditorState, labels: ReminderLabels): DecorationSet {
     const line = state.doc.line(n);
     if (!REMINDER_RE.test(line.text)) continue;
     const label = labels.get(line.text.trim());
-    const widget = new StatusWidget(label ?? "no time yet", label === undefined);
+    const widget = new StatusWidget(label ?? "no time found", label === undefined);
     ranges.push(Decoration.widget({ widget, side: 1 }).range(line.to));
   }
   return RangeSet.of(ranges);

@@ -2,7 +2,15 @@
 
 import { EditorSelection } from "@codemirror/state";
 import type { EditorView, KeyBinding } from "@codemirror/view";
-import { isoDate, toggleWrap } from "../text";
+import {
+  DEFAULT_TEXT_SIZE,
+  isoDate,
+  nextTextSize,
+  stepTextSize,
+  TEXT_SIZES,
+  textSizeIndex,
+  toggleWrap,
+} from "../text";
 import { toggleTaskCommand } from "./tasks";
 
 function wrapWith(mark: string) {
@@ -28,32 +36,36 @@ function insertDate(view: EditorView): boolean {
 }
 
 const FONT_KEY = "noted.fontSize";
-const FONT_DEFAULT = 22;
-const FONT_MIN = 12;
-const FONT_MAX = 40;
 
+/** Applies the saved (or given) text size to the page. */
 export function applyFontSize(size: number = readFontSize()): void {
-  document.documentElement.style.setProperty("--font-size", `${size}px`);
+  const root = document.documentElement;
+  root.style.setProperty("--font-size", `${size}px`);
+  root.dataset.textSize = String(textSizeIndex(size));
 }
 
 function readFontSize(): number {
   try {
     const saved = Number(localStorage.getItem(FONT_KEY));
-    return saved >= FONT_MIN && saved <= FONT_MAX ? saved : FONT_DEFAULT;
+    return (TEXT_SIZES as readonly number[]).includes(saved) ? saved : DEFAULT_TEXT_SIZE;
   } catch {
-    return FONT_DEFAULT;
+    return DEFAULT_TEXT_SIZE;
   }
 }
 
 function setFontSize(size: number): boolean {
-  const clamped = Math.min(FONT_MAX, Math.max(FONT_MIN, size));
   try {
-    localStorage.setItem(FONT_KEY, String(clamped));
+    localStorage.setItem(FONT_KEY, String(size));
   } catch {
     // Not persisted; still applied for this session.
   }
-  applyFontSize(clamped);
+  applyFontSize(size);
   return true;
+}
+
+/** The footer's Aa button: next size, wrapping around. */
+export function cycleFontSize(): void {
+  setFontSize(nextTextSize(readFontSize()));
 }
 
 export const commandKeymap: KeyBinding[] = [
@@ -61,8 +73,8 @@ export const commandKeymap: KeyBinding[] = [
   { key: "Mod-i", run: wrapWith("*") },
   { key: "Mod-l", run: toggleTaskCommand },
   { key: "Shift-Mod-d", run: insertDate },
-  { key: "Mod-=", run: () => setFontSize(readFontSize() + 2) },
-  { key: "Mod-+", run: () => setFontSize(readFontSize() + 2) },
-  { key: "Mod--", run: () => setFontSize(readFontSize() - 2) },
-  { key: "Mod-0", run: () => setFontSize(FONT_DEFAULT) },
+  { key: "Mod-=", run: () => setFontSize(stepTextSize(readFontSize(), 1)) },
+  { key: "Mod-+", run: () => setFontSize(stepTextSize(readFontSize(), 1)) },
+  { key: "Mod--", run: () => setFontSize(stepTextSize(readFontSize(), -1)) },
+  { key: "Mod-0", run: () => setFontSize(DEFAULT_TEXT_SIZE) },
 ];

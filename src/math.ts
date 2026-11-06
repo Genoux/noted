@@ -124,12 +124,23 @@ class Parser {
   }
 }
 
-function format(n: number): string {
-  if (Number.isInteger(n) && Math.abs(n) < 1e15) return String(n);
-  const rounded = Number(n.toPrecision(10));
-  return Math.abs(rounded) >= 1e15 || (rounded !== 0 && Math.abs(rounded) < 1e-6)
-    ? rounded.toExponential(4)
-    : String(rounded);
+function format(n: number, maxDecimals = 6, minDecimals = 0): string {
+  return n.toLocaleString("en-US", {
+    minimumFractionDigits: minDecimals,
+    maximumFractionDigits: maxDecimals,
+  });
+}
+
+/** Units: 2 decimals, or 4 for values under 1. */
+function formatUnit(n: number): string {
+  return format(n, Math.abs(n) < 1 ? 4 : 2);
+}
+
+/** Money: whole amounts bare ($36), otherwise always cents ($37.50). */
+function formatMoney(n: number): string {
+  const cents = Math.round(n * 100);
+  const digits = cents % 100 === 0 ? 0 : 2;
+  return format(cents / 100, digits, digits);
 }
 
 function convert(src: string): string | null {
@@ -141,7 +152,7 @@ function convert(src: string): string | null {
   if (!from || !to || from.dim !== to.dim || value === null) return null;
   const base = (value + (from.offset ?? 0)) * from.factor;
   const out = base / to.factor - (to.offset ?? 0);
-  return `${format(out)} ${m[3]}`;
+  return `${formatUnit(out)} ${m[3]}`;
 }
 
 /** Evaluates the text before a trailing "=", or null if it isn't maths. */
@@ -160,5 +171,5 @@ export function evaluate(line: string): string | null {
 
   const value = new Parser(src).parse();
   if (value === null) return null;
-  return currency ? `${currency}${format(Math.round(value * 100) / 100)}` : format(value);
+  return currency ? `${currency}${formatMoney(value)}` : format(value);
 }

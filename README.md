@@ -13,7 +13,14 @@ Early development. See the [roadmap](#roadmap).
 ## Develop
 
 Requires Rust (pinned in `rust-toolchain.toml`), Node 22+ and pnpm.
-On Linux, also install `libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev`.
+On Linux, also install the WebKitGTK, tray and SVG libraries:
+
+```sh
+# Arch
+sudo pacman -S --needed base-devel webkit2gtk-4.1 libappindicator-gtk3 librsvg openssl
+# Debian / Ubuntu
+sudo apt install libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
+```
 
 ```sh
 pnpm install
