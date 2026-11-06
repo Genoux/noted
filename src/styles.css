@@ -70,10 +70,6 @@ body {
   caret-color: currentColor;
 }
 
-.cm-cursor {
-  border-left: 2px solid currentColor;
-}
-
 .cm-placeholder {
   color: var(--muted);
 }

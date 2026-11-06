@@ -1,5 +1,6 @@
 // Live markdown styling: inline marks via highlight tags, block lines via decorations.
 
+import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { HighlightStyle, syntaxHighlighting, syntaxTree } from "@codemirror/language";
 import { type Range, RangeSet } from "@codemirror/state";
 import {
@@ -10,6 +11,12 @@ import {
   type ViewUpdate,
 } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
+
+/** GFM markdown, where `---` under a line is always a divider, never a "setext" heading. */
+export const noteMarkdown = markdown({
+  base: markdownLanguage,
+  extensions: [{ remove: ["SetextHeading"] }],
+});
 
 const style = HighlightStyle.define([
   { tag: t.heading1, fontSize: "1.55em", fontWeight: "700" },

@@ -1,13 +1,12 @@
 // Assembles the CodeMirror editor.
 
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
-import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { highlightSelectionMatches, search, searchKeymap } from "@codemirror/search";
 import { EditorState, Prec } from "@codemirror/state";
 import { drawSelection, EditorView, keymap, placeholder } from "@codemirror/view";
 import { applyFontSize, commandKeymap } from "./commands";
 import { links } from "./links";
-import { markdownStyling } from "./markdown";
+import { markdownStyling, noteMarkdown } from "./markdown";
 import { tasks } from "./tasks";
 
 // Overrides of CodeMirror's base theme (scoped, so no !important needed).
@@ -20,6 +19,7 @@ const theme = EditorView.theme({
     lineHeight: "1.6",
     padding: "8px 72px 24px",
   },
+  ".cm-cursor, .cm-dropCursor": { borderLeft: "2px solid var(--fg)" },
   ".cm-panels": { background: "transparent", color: "inherit" },
   ".cm-panels.cm-panels-bottom": { borderTop: "1px solid var(--border)" },
   ".cm-line.cm-quote": { paddingLeft: "14px" },
@@ -47,9 +47,14 @@ export function createEditor({ parent, doc, onChange, onEscape }: EditorOptions)
         history(),
         drawSelection(),
         EditorView.lineWrapping,
-        EditorView.contentAttributes.of({ spellcheck: "false", "aria-label": "Note" }),
+        EditorView.contentAttributes.of({
+          spellcheck: "false",
+          autocorrect: "off",
+          autocapitalize: "off",
+          "aria-label": "Note",
+        }),
         placeholder("Jot it down…"),
-        markdown({ base: markdownLanguage }),
+        noteMarkdown,
         theme,
         markdownStyling,
         tasks,
