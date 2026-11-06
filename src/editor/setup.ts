@@ -27,52 +27,53 @@ const theme = EditorView.theme({
 
 export interface EditorOptions {
   parent: HTMLElement;
-  doc: string;
   onChange: (text: string) => void;
   /** Esc when nothing else (like the find panel) wants it. */
   onEscape: () => void;
 }
 
-export function createEditor({ parent, doc, onChange, onEscape }: EditorOptions): EditorView {
+export interface Editor {
+  view: EditorView;
+  /** A fresh state (own undo history) for a document, e.g. one per tab. */
+  stateFor: (doc: string) => EditorState;
+}
+
+export function createEditor({ parent, onChange, onEscape }: EditorOptions): Editor {
   applyFontSize();
   const dismiss = (): boolean => {
     onEscape();
     return true;
   };
-  return new EditorView({
-    parent,
-    state: EditorState.create({
-      doc,
-      extensions: [
-        history(),
-        drawSelection(),
-        EditorView.lineWrapping,
-        EditorView.contentAttributes.of({
-          spellcheck: "false",
-          autocorrect: "off",
-          autocapitalize: "off",
-          "aria-label": "Note",
-        }),
-        placeholder("Jot it down…"),
-        noteMarkdown,
-        theme,
-        markdownStyling,
-        tasks,
-        links,
-        search({ top: false }),
-        highlightSelectionMatches(),
-        keymap.of([
-          ...commandKeymap,
-          ...searchKeymap,
-          ...historyKeymap,
-          ...defaultKeymap,
-          indentWithTab,
-        ]),
-        Prec.lowest(keymap.of([{ key: "Escape", run: dismiss }])),
-        EditorView.updateListener.of((u) => {
-          if (u.docChanged) onChange(u.state.doc.toString());
-        }),
-      ],
+  const extensions = [
+    history(),
+    drawSelection(),
+    EditorView.lineWrapping,
+    EditorView.contentAttributes.of({
+      spellcheck: "false",
+      autocorrect: "off",
+      autocapitalize: "off",
+      "aria-label": "Note",
     }),
-  });
+    placeholder("Jot it down…"),
+    noteMarkdown,
+    theme,
+    markdownStyling,
+    tasks,
+    links,
+    search({ top: false }),
+    highlightSelectionMatches(),
+    keymap.of([
+      ...commandKeymap,
+      ...searchKeymap,
+      ...historyKeymap,
+      ...defaultKeymap,
+      indentWithTab,
+    ]),
+    Prec.lowest(keymap.of([{ key: "Escape", run: dismiss }])),
+    EditorView.updateListener.of((u) => {
+      if (u.docChanged) onChange(u.state.doc.toString());
+    }),
+  ];
+  const stateFor = (doc: string) => EditorState.create({ doc, extensions });
+  return { view: new EditorView({ parent, state: stateFor("") }), stateFor };
 }

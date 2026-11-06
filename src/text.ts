@@ -34,3 +34,19 @@ export function isoDate(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
+
+const TITLE_MAX = 24;
+
+/** A tab title from the note's first non-empty line, minus markdown markers. */
+export function tabTitle(text: string): string {
+  for (const raw of text.split("\n")) {
+    const line = raw
+      .replace(/^\s*(#{1,6}\s+|>\s*|[-*+]\s+(\[[ xX]\]\s*)?|\d+[.)]\s+)/, "")
+      .replace(/[*_`~]/g, "")
+      .trim();
+    if (line && !/^-{3,}$/.test(line)) {
+      return line.length > TITLE_MAX ? `${line.slice(0, TITLE_MAX - 1).trimEnd()}…` : line;
+    }
+  }
+  return "Untitled";
+}
