@@ -21,13 +21,15 @@ pub fn show<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
-/// Focus mode: the panel is a quick-capture popup, so clicking anywhere else
-/// (or switching apps) puts it away. Notes save as you type; nothing is lost.
-pub fn hide_on_blur<R: Runtime>(app: &AppHandle<R>) {
+/// Closing the window (e.g. the compositor's close key) only hides the
+/// panel, so the next summon brings back the same loaded page. Losing focus
+/// does nothing: with focus-follows-mouse, moving the pointer away would hide it.
+pub fn hide_on_close<R: Runtime>(app: &AppHandle<R>) {
     let Some(w) = window(app) else { return };
     let panel = w.clone();
     w.on_window_event(move |event| {
-        if let WindowEvent::Focused(false) = event {
+        if let WindowEvent::CloseRequested { api, .. } = event {
+            api.prevent_close();
             let _ = panel.hide();
         }
     });
