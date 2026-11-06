@@ -8,7 +8,6 @@ import { createEditor } from "./editor/setup";
 import { closeHelp, isHelpOpen, toggleHelp } from "./help";
 import { renderTabs } from "./tabs";
 import { countWords, reminderLabel, tabTitle } from "./text";
-import { applyTheme, cycleTheme } from "./theme";
 
 const SAVE_DELAY_MS = 300;
 const ACTIVE_KEY = "noted.activeTab";
@@ -209,9 +208,7 @@ function footerButton(selector: string, run: (button: HTMLButtonElement) => void
   });
 }
 
-applyTheme(requireEl<HTMLButtonElement>("#theme"));
-footerButton("#theme", cycleTheme);
-footerButton("#text-size", cycleFontSize);
+footerButton("#text-size", () => cycleFontSize(editor.view));
 footerButton("#help", toggleHelp);
 
 // --- show / hide ----------------------------------------------------------
@@ -219,9 +216,3 @@ footerButton("#help", toggleHelp);
 // Flush pending saves whenever the panel loses focus or hides.
 window.addEventListener("blur", flush);
 window.addEventListener("focus", () => editor.view.focus());
-// Fade in each time the panel is summoned (not on every refocus).
-void listen("panel-shown", () => {
-  document.body.classList.remove("appear");
-  void document.body.offsetWidth; // Restart the animation.
-  document.body.classList.add("appear");
-});

@@ -19,14 +19,15 @@ const theme = EditorView.theme({
   ".cm-scroller": {
     fontFamily: "var(--body-font)",
     lineHeight: "1.35",
-    padding: "4px 24px 8px",
+    // 22px sides: the text lines up with the tab labels at every size.
+    padding: "4px 22px 8px",
   },
-  // The text column is at most 34 × the font size wide, centred, so bigger
-  // text means narrower side margins.
+  // Full width at the default panel size. Only a much wider panel centres
+  // the column, capped at 760px or 34 × the font size, whichever is wider.
   ".cm-content": {
     boxSizing: "border-box",
     width: "100%",
-    maxWidth: "calc(var(--font-size, 20px) * 34)",
+    maxWidth: "max(760px, calc(var(--font-size, 20px) * 34))",
     margin: "0 auto",
     padding: "0",
     caretColor: "var(--caret)",

@@ -36,7 +36,7 @@ export function renderTabs(
       const close = document.createElement("button");
       close.className = "tab-close";
       close.type = "button";
-      close.textContent = "×";
+      close.append(icon("M4 4l8 8M12 4l-8 8", 10));
       close.setAttribute("aria-label", `Close ${tab.title}`);
       close.addEventListener("mousedown", (e) => {
         e.stopPropagation();
@@ -54,7 +54,7 @@ function newTabButton(onCreate: () => void): HTMLButtonElement {
   const add = document.createElement("button");
   add.className = "tab-new";
   add.type = "button";
-  add.textContent = "+";
+  add.append(icon("M8 3v10M3 8h10", 12));
   add.title = "New tab  (⌘T)";
   add.setAttribute("aria-label", "New tab");
   add.addEventListener("mousedown", (e) => {
@@ -62,4 +62,23 @@ function newTabButton(onCreate: () => void): HTMLButtonElement {
     onCreate();
   });
   return add;
+}
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+/** A stroked 16×16 icon drawn at `size` px, so it centres exactly (a "×" glyph sits on the font's baseline). */
+function icon(path: string, size: number): SVGSVGElement {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  svg.setAttribute("width", String(size));
+  svg.setAttribute("height", String(size));
+  svg.setAttribute("aria-hidden", "true");
+  const line = document.createElementNS(SVG_NS, "path");
+  line.setAttribute("d", path);
+  line.setAttribute("stroke", "currentColor");
+  line.setAttribute("stroke-width", "1.6");
+  line.setAttribute("stroke-linecap", "round");
+  line.setAttribute("fill", "none");
+  svg.append(line);
+  return svg;
 }

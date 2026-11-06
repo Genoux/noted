@@ -1,46 +1,15 @@
 /* ---------------------------------------------------------------------------
-   Tokens. Light is the default; dark applies via the system setting
-   (unless forced light) or when forced dark from the footer toggle.
+   Tokens
    ------------------------------------------------------------------------- */
 
 :root {
-  --text: rgb(26 26 26);
-  --rgb: 26 26 26;
-  --tint: rgb(255 255 255 / 0.72); /* over the native blur: "subtle" */
-  --sheet: rgb(255 255 255 / 0.97);
-  --pill: rgb(255 255 255 / 0.99);
-  --caret: #000;
-  --code-bg: rgb(0 0 0 / 0.07);
-  --match: rgb(255 209 46 / 0.55);
-  --mark-alpha: 0.36;
-  --rule-alpha: 0.3;
-  --selection-alpha: 22%;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --text: rgb(242 237 227);
-    --rgb: 242 237 227;
-    --tint: rgb(0 0 0 / 0.5);
-    --sheet: rgb(20 20 20 / 0.96);
-    --pill: rgb(41 41 41);
-    --caret: rgb(250 247 237);
-    --code-bg: rgb(255 255 255 / 0.1);
-    --match: rgb(250 199 71 / 0.42);
-    --mark-alpha: 0.38;
-    --rule-alpha: 0.35;
-    --selection-alpha: 32%;
-    color-scheme: dark;
-  }
-}
-
-:root[data-theme="dark"] {
+  /* Dark only: Noted has a single appearance. */
   --text: rgb(242 237 227);
   --rgb: 242 237 227;
-  --tint: rgb(0 0 0 / 0.5);
+  --tint: rgb(18 18 18 / 0.82); /* solid enough that what's behind doesn't compete */
   --sheet: rgb(20 20 20 / 0.96);
   --pill: rgb(41 41 41);
+  --tab-active: rgb(255 255 255 / 0.1);
   --caret: rgb(250 247 237);
   --code-bg: rgb(255 255 255 / 0.1);
   --match: rgb(250 199 71 / 0.42);
@@ -57,6 +26,7 @@
   --mark: rgb(var(--rgb) / var(--mark-alpha));
   --rule: rgb(var(--rgb) / var(--rule-alpha));
   --hairline: rgb(var(--rgb) / 0.12);
+  --edge: rgb(var(--rgb) / 0.07); /* the panel's own outline */
   --hover: rgb(var(--rgb) / 0.06);
   --selection: color-mix(in srgb, AccentColor var(--selection-alpha), transparent);
   --body-font: Charter, "Iowan Old Style", Georgia, serif;
@@ -80,29 +50,12 @@ body {
   height: 100%;
   margin: 0;
   overflow: hidden;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--edge);
   border-radius: 18px;
   background: var(--tint);
   color: var(--text);
   font-family: var(--ui-font);
   -webkit-font-smoothing: antialiased;
-}
-
-/* Fade in on show; hiding is instant. */
-body.appear {
-  animation: appear 0.14s cubic-bezier(0.2, 0.9, 0.3, 1);
-}
-
-@keyframes appear {
-  from {
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body.appear {
-    animation: none;
-  }
 }
 
 button {
@@ -119,10 +72,13 @@ button {
   flex: none;
   gap: 4px;
   align-items: center;
-  padding: 12px 24px 6px;
+  /* Even inset from the panel's top and sides; the gap below separates the
+     strip from the text. */
+  padding: 10px 10px 0;
+  margin-bottom: 14px;
   overflow-x: auto;
   scrollbar-width: none;
-  font-size: 11px;
+  font-size: 12.5px;
   user-select: none;
 }
 
@@ -133,28 +89,32 @@ button {
 .tab {
   display: flex;
   flex: 0 1 auto;
-  gap: 2px;
+  gap: 4px;
   align-items: center;
   min-width: 0;
-  max-width: 180px;
-  height: 22px;
-  padding: 0 4px 0 8px;
-  border-radius: 6px;
-  color: var(--tertiary);
-  transition: color 0.12s ease-out;
+  max-width: 200px;
+  height: 30px;
+  padding: 0 6px 0 12px;
+  border-radius: 9px;
+  color: var(--secondary);
+  transition:
+    color 0.12s ease-out,
+    background-color 0.12s ease-out;
 }
 
 .tab:hover {
-  color: var(--secondary);
-}
-
-.tab[aria-selected="true"] {
   color: var(--text);
   background: var(--hover);
 }
 
+.tab[aria-selected="true"] {
+  color: var(--text);
+  background: var(--tab-active);
+}
+
 .tab-label {
   overflow: hidden;
+  line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -166,16 +126,19 @@ button {
   place-items: center;
   padding: 0;
   border: 0;
-  border-radius: 4px;
+  border-radius: 6px;
   background: transparent;
   color: var(--tertiary);
-  line-height: 1;
+}
+
+.tab-close svg,
+.tab-new svg {
+  display: block;
 }
 
 .tab-close {
-  width: 16px;
-  height: 16px;
-  font-size: 13px;
+  width: 20px;
+  height: 20px;
   visibility: hidden;
 }
 
@@ -185,9 +148,9 @@ button {
 }
 
 .tab-new {
-  width: 22px;
-  height: 22px;
-  font-size: 15px;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
 }
 
 .tab-close:hover,
@@ -392,7 +355,7 @@ footer {
   justify-content: space-between;
   align-items: center;
   height: 48px;
-  padding: 0 24px;
+  padding: 0 22px;
   color: var(--tertiary);
   font-size: 11px;
   font-variant-numeric: tabular-nums;

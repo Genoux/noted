@@ -21,6 +21,7 @@
         "center": true,
         "decorations": false,
         "transparent": true,
+        "theme": "Dark",
         "shadow": false,
         "alwaysOnTop": true,
         "skipTaskbar": true,
