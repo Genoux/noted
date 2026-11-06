@@ -226,6 +226,24 @@ body {
   text-decoration-color: var(--muted);
 }
 
+.cm-reminder {
+  margin-left: 0.6em;
+  color: var(--accent);
+  font:
+    0.6em system-ui,
+    sans-serif;
+  letter-spacing: 0.02em;
+  vertical-align: 0.15em;
+}
+
+.cm-reminder-pending {
+  color: var(--muted);
+}
+
+.cm-math-answer {
+  color: var(--muted);
+}
+
 .cm-searchMatch {
   background: color-mix(in srgb, var(--accent) 25%, transparent);
   border-radius: 2px;
