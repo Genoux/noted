@@ -6,7 +6,7 @@ mod reminders;
 use noted_core::NoteStore;
 use noted_core::reminder::{Entry, local_now};
 use reminders::Reminders;
-use tauri::{Manager, State, WindowEvent};
+use tauri::{Manager, State};
 
 /// Errors crossing the IPC boundary are sent to the frontend as strings.
 type CmdResult<T> = Result<T, String>;
@@ -73,6 +73,15 @@ pub fn run() {
     let result = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
+        // Remembers where the panel was and how big, like Wisp.
+        .plugin(
+            tauri_plugin_window_state::Builder::new()
+                .with_state_flags(
+                    tauri_plugin_window_state::StateFlags::POSITION
+                        | tauri_plugin_window_state::StateFlags::SIZE,
+                )
+                .build(),
+        )
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             let store = NoteStore::open(&dir).map_err(|e| e.to_string())?;
@@ -89,12 +98,6 @@ pub fn run() {
             panel::build_tray(handle)?;
             panel::show(handle);
             Ok(())
-        })
-        .on_window_event(|window, event| {
-            // Clicking anywhere else dismisses the panel, like a popover.
-            if let WindowEvent::Focused(false) = event {
-                let _ = window.hide();
-            }
         })
         .invoke_handler(tauri::generate_handler![
             list_tabs,

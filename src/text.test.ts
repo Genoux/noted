@@ -5,6 +5,7 @@ import {
   nextTextSize,
   REMINDER_RE,
   reminderLabel,
+  stepTextSize,
   tabTitle,
   toggleTask,
   toggleWrap,
@@ -68,21 +69,25 @@ describe("reminders", () => {
     expect(REMINDER_RE.test("please remind me")).toBe(false);
   });
 
-  it("labels by distance", () => {
-    expect(reminderLabel("2026-11-06T15:30:00", false, now)).toBe("⏰ 3:30 PM");
-    expect(reminderLabel("2026-11-06T13:00:10", false, now)).toBe("⏰ 1:00:10 PM");
-    expect(reminderLabel("2026-11-07T09:00:00", false, now)).toBe("⏰ Sat 9:00 AM");
-    expect(reminderLabel("2026-11-20T00:05:00", false, now)).toBe("⏰ Nov 20 12:05 AM");
+  it("labels like Wisp", () => {
+    expect(reminderLabel("2026-11-06T15:30:00", false, now)).toBe("→ 3:30 PM");
+    expect(reminderLabel("2026-11-07T09:00:00", false, now)).toBe("→ Tomorrow 9:00 AM");
+    expect(reminderLabel("2026-11-09T09:00:00", false, now)).toBe("→ Mon 9:00 AM");
+    expect(reminderLabel("2026-11-20T00:05:00", false, now)).toBe("→ 20 Nov 12:05 AM");
     expect(reminderLabel("2026-11-06T12:00:00", true, now)).toBe("✓ sent");
   });
 });
 
-describe("nextTextSize", () => {
-  it("steps up through presets and wraps", () => {
-    expect(nextTextSize(18)).toBe(22);
-    expect(nextTextSize(22)).toBe(26);
-    expect(nextTextSize(32)).toBe(18);
-    expect(nextTextSize(24)).toBe(26); // between presets, e.g. after ⌘=
-    expect(nextTextSize(40)).toBe(18);
+describe("text size", () => {
+  it("Aa cycles and wraps", () => {
+    expect(nextTextSize(17)).toBe(20);
+    expect(nextTextSize(20)).toBe(24);
+    expect(nextTextSize(28)).toBe(17);
+  });
+  it("shortcuts step and stop at the ends", () => {
+    expect(stepTextSize(20, 1)).toBe(24);
+    expect(stepTextSize(28, 1)).toBe(28);
+    expect(stepTextSize(17, -1)).toBe(17);
+    expect(stepTextSize(22, -1)).toBe(17); // old saved size snaps to nearest preset
   });
 });

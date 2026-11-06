@@ -5,8 +5,10 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { cycleFontSize } from "./editor/commands";
 import { setReminderLabels } from "./editor/reminders";
 import { createEditor } from "./editor/setup";
+import { closeHelp, isHelpOpen, toggleHelp } from "./help";
 import { renderTabs } from "./tabs";
 import { countWords, reminderLabel, tabTitle } from "./text";
+import { applyTheme, cycleTheme } from "./theme";
 
 const SAVE_DELAY_MS = 300;
 const ACTIVE_KEY = "noted.activeTab";
@@ -83,7 +85,7 @@ function render(): void {
   const tabs = order.map((id) => ({ id, title: tabTitle(textOf(id)) }));
   renderTabs(strip, tabs, activeId, { onSelect: select, onClose: close, onCreate: create });
   const n = countWords(textOf(activeId));
-  words.textContent = `${n} ${n === 1 ? "word" : "words"}`;
+  words.textContent = n === 0 ? "" : `${n} ${n === 1 ? "word" : "words"}`;
 }
 
 // --- tab actions ----------------------------------------------------------
@@ -159,7 +161,11 @@ document.addEventListener(
   (e) => {
     const mod = e.metaKey || e.ctrlKey;
     let handled = true;
-    if (mod && !e.shiftKey && e.key === "t") void create();
+    if (e.key === "Escape" && isHelpOpen()) {
+      e.stopPropagation(); // Esc closes the sheet before the panel.
+      closeHelp();
+    } else if (mod && e.key === "/") toggleHelp();
+    else if (mod && !e.shiftKey && e.key === "t") void create();
     else if (mod && !e.shiftKey && e.key === "w") void close(activeId);
     else if (mod && /^[1-9]$/.test(e.key)) {
       const id = order[Number(e.key) - 1];
@@ -192,11 +198,30 @@ select(remembered && states.has(remembered) ? remembered : order[0]);
 // A reminder fired: its status changes to "sent".
 void listen("reminders-changed", () => void refreshReminders());
 
-requireEl<HTMLButtonElement>("#text-size").addEventListener("mousedown", (e) => {
-  e.preventDefault(); // Keep focus (and the caret) in the editor.
-  cycleFontSize();
-});
+// --- footer ---------------------------------------------------------------
+
+/** Footer buttons act on mousedown and keep focus (and the caret) in the editor. */
+function footerButton(selector: string, run: (button: HTMLButtonElement) => void): void {
+  const button = requireEl<HTMLButtonElement>(selector);
+  button.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    run(button);
+  });
+}
+
+applyTheme(requireEl<HTMLButtonElement>("#theme"));
+footerButton("#theme", cycleTheme);
+footerButton("#text-size", cycleFontSize);
+footerButton("#help", toggleHelp);
+
+// --- show / hide ----------------------------------------------------------
 
 // Flush pending saves whenever the panel loses focus or hides.
 window.addEventListener("blur", flush);
 window.addEventListener("focus", () => editor.view.focus());
+// Fade in each time the panel is summoned (not on every refocus).
+void listen("panel-shown", () => {
+  document.body.classList.remove("appear");
+  void document.body.offsetWidth; // Restart the animation.
+  document.body.classList.add("appear");
+});

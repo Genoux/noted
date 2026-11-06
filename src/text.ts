@@ -55,29 +55,49 @@ export function tabTitle(text: string): string {
 export const REMINDER_RE = /^\s*(?:[-*+]\s+(?:\[[ xX]\]\s+)?)?(?:remind me|reminder)(?=$|[\s:,])/i;
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** Inline status for a scheduled reminder: "⏰ 3:30 PM", "⏰ Fri 9:00 AM", "✓ sent". */
-export function reminderLabel(atIso: string, sent: boolean, now: Date): string {
-  if (sent) return "✓ sent";
-  const at = new Date(atIso); // No offset in the string, so read as local time.
-  const h = at.getHours();
-  const time = `${h % 12 || 12}:${String(at.getMinutes()).padStart(2, "0")}${
-    at.getSeconds() ? `:${String(at.getSeconds()).padStart(2, "0")}` : ""
-  } ${h < 12 ? "AM" : "PM"}`;
-  const sameDay = at.toDateString() === now.toDateString();
-  const days = (at.getTime() - now.getTime()) / 86_400_000;
-  const day = sameDay
-    ? ""
-    : days < 6
-      ? `${WEEKDAYS[at.getDay()]} `
-      : `${at.toLocaleString("en", { month: "short" })} ${at.getDate()} `;
-  return `⏰ ${day}${time}`;
+function dayStart(d: Date): number {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 }
 
-/** Text sizes the Aa button steps through: small, medium, large, extra large. */
-export const TEXT_SIZES = [18, 22, 26, 32] as const;
+/** "2:42 PM" today, "Tomorrow 9:00 AM", "Fri 9:00 AM" this week, else "14 Oct 10:00 AM". */
+export function reminderTime(at: Date, now: Date): string {
+  const h = at.getHours();
+  const time = `${h % 12 || 12}:${String(at.getMinutes()).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+  const days = Math.round((dayStart(at) - dayStart(now)) / 86_400_000);
+  if (days === 0) return time;
+  if (days === 1) return `Tomorrow ${time}`;
+  if (days > 1 && days < 7) return `${WEEKDAYS[at.getDay()]} ${time}`;
+  return `${at.getDate()} ${MONTHS[at.getMonth()]} ${time}`;
+}
 
-/** The next preset above `current`, wrapping back to the smallest. */
+/** Inline status after a scheduled reminder line. */
+export function reminderLabel(atIso: string, sent: boolean, now: Date): string {
+  // No offset in the string, so it is read as local time.
+  return sent ? "✓ sent" : `→ ${reminderTime(new Date(atIso), now)}`;
+}
+
+/** Text sizes: small, default, large, largest. */
+export const TEXT_SIZES = [17, 20, 24, 28] as const;
+export const DEFAULT_TEXT_SIZE = 20;
+
+/** Index of the preset nearest to `size`. */
+export function textSizeIndex(size: number): number {
+  let best = 0;
+  TEXT_SIZES.forEach((s, i) => {
+    if (Math.abs(s - size) < Math.abs(TEXT_SIZES[best] - size)) best = i;
+  });
+  return best;
+}
+
+/** The Aa button: next preset, wrapping back to the smallest. */
 export function nextTextSize(current: number): number {
-  return TEXT_SIZES.find((s) => s > current) ?? TEXT_SIZES[0];
+  return TEXT_SIZES[(textSizeIndex(current) + 1) % TEXT_SIZES.length];
+}
+
+/** ⌘= / ⌘-: one preset up or down, stopping at the ends. */
+export function stepTextSize(current: number, step: 1 | -1): number {
+  const i = Math.min(TEXT_SIZES.length - 1, Math.max(0, textSizeIndex(current) + step));
+  return TEXT_SIZES[i];
 }

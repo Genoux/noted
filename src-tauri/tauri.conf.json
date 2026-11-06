@@ -14,9 +14,9 @@
       {
         "label": "main",
         "title": "Noted",
-        "width": 820,
-        "height": 660,
-        "minWidth": 420,
+        "width": 800,
+        "height": 640,
+        "minWidth": 440,
         "minHeight": 280,
         "center": true,
         "decorations": false,
@@ -27,10 +27,11 @@
         "visible": false,
         "resizable": true,
         "windowEffects": {
-          "effects": ["popover"],
+          "effects": ["fullScreenUI"],
           "state": "active",
-          "radius": 16
-        }
+          "radius": 18
+        },
+        "visibleOnAllWorkspaces": true
       }
     ],
     "security": {

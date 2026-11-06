@@ -19,9 +19,9 @@ export const noteMarkdown = markdown({
 });
 
 const style = HighlightStyle.define([
-  { tag: t.heading1, fontSize: "1.55em", fontWeight: "700" },
-  { tag: t.heading2, fontSize: "1.3em", fontWeight: "700" },
-  { tag: t.heading3, fontSize: "1.12em", fontWeight: "700" },
+  { tag: t.heading1, fontSize: "1.4em", fontWeight: "700" },
+  { tag: t.heading2, fontSize: "1.2em", fontWeight: "700" },
+  { tag: t.heading3, fontSize: "1.05em", fontWeight: "700" },
   { tag: [t.heading4, t.heading5, t.heading6], fontWeight: "700" },
   { tag: t.strong, fontWeight: "700" },
   { tag: t.emphasis, fontStyle: "italic" },
@@ -35,6 +35,7 @@ const lineDeco = {
   hr: Decoration.line({ class: "cm-hr" }),
   code: Decoration.line({ class: "cm-codeblock" }),
   quote: Decoration.line({ class: "cm-quote" }),
+  heading: Decoration.line({ class: "cm-heading" }),
 };
 
 function blockLines(view: EditorView): DecorationSet {
@@ -52,7 +53,9 @@ function blockLines(view: EditorView): DecorationSet {
               ? lineDeco.code
               : node.name === "Blockquote"
                 ? lineDeco.quote
-                : null;
+                : node.name.startsWith("ATXHeading")
+                  ? lineDeco.heading
+                  : null;
         if (!deco) return;
         for (let pos = node.from; pos <= node.to; ) {
           const line = doc.lineAt(pos);

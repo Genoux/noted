@@ -2,8 +2,9 @@
 
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
-use tauri::{AppHandle, Manager, Runtime, WebviewWindow};
+use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewWindow};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 
 const MAIN: &str = "main";
 
@@ -16,6 +17,8 @@ pub fn show<R: Runtime>(app: &AppHandle<R>) {
     if let Some(w) = window(app) {
         let _ = w.show();
         let _ = w.set_focus();
+        // The page fades itself in on this.
+        let _ = w.emit("panel-shown", ());
     }
 }
 
@@ -59,7 +62,11 @@ pub fn build_tray<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         .menu(&menu)
         .on_menu_event(|app, event| match event.id.as_ref() {
             "show" => show(app),
-            "quit" => app.exit(0),
+            "quit" => {
+                // Keep the panel's position and size for next launch.
+                let _ = app.save_window_state(StateFlags::POSITION | StateFlags::SIZE);
+                app.exit(0);
+            }
             _ => {}
         });
     if let Some(icon) = app.default_window_icon() {

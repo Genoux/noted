@@ -1,10 +1,11 @@
 // Assembles the CodeMirror editor.
 
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
-import { highlightSelectionMatches, search, searchKeymap } from "@codemirror/search";
+import { searchKeymap } from "@codemirror/search";
 import { EditorState, Prec } from "@codemirror/state";
 import { drawSelection, EditorView, keymap, placeholder } from "@codemirror/view";
 import { applyFontSize, commandKeymap } from "./commands";
+import { find } from "./find";
 import { inlineMath, mathKeymap } from "./inline-math";
 import { links } from "./links";
 import { markdownStyling, noteMarkdown } from "./markdown";
@@ -13,19 +14,37 @@ import { tasks } from "./tasks";
 
 // Overrides of CodeMirror's base theme (scoped, so no !important needed).
 const theme = EditorView.theme({
+  "&": { fontSize: "var(--font-size, 20px)" },
+  "&.cm-focused": { outline: "none" },
+  ".cm-scroller": {
+    fontFamily: "var(--body-font)",
+    lineHeight: "1.35",
+    padding: "4px 24px 8px",
+  },
+  // The text column is at most 34 × the font size wide, centred, so bigger
+  // text means narrower side margins.
+  ".cm-content": {
+    boxSizing: "border-box",
+    width: "100%",
+    maxWidth: "calc(var(--font-size, 20px) * 34)",
+    margin: "0 auto",
+    padding: "0",
+    caretColor: "var(--caret)",
+  },
+  ".cm-line": { padding: "0" },
+  ".cm-cursor, .cm-dropCursor": { borderLeft: "2px solid var(--caret)" },
   "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground":
     { background: "var(--selection)" },
-  "&": { fontSize: "var(--font-size, 22px)" },
-  ".cm-scroller": {
-    fontFamily: 'Charter, "Iowan Old Style", Georgia, serif',
-    lineHeight: "1.6",
-    padding: "8px 72px 24px",
-  },
-  ".cm-cursor, .cm-dropCursor": { borderLeft: "2px solid var(--fg)" },
-  ".cm-panels": { background: "transparent", color: "inherit" },
-  ".cm-panels.cm-panels-bottom": { borderTop: "1px solid var(--border)" },
-  ".cm-line.cm-quote": { paddingLeft: "14px" },
+  ".cm-line.cm-quote": { paddingLeft: "14px", borderLeft: "2px solid var(--rule)" },
 });
+
+const PLACEHOLDERS = [
+  "What's on your mind?",
+  "Type your first thought…",
+  "Write it down before it's gone.",
+  "Capture it before you forget.",
+  "Anything to remember?",
+];
 
 export interface EditorOptions {
   parent: HTMLElement;
@@ -56,7 +75,7 @@ export function createEditor({ parent, onChange, onEscape }: EditorOptions): Edi
       autocapitalize: "off",
       "aria-label": "Note",
     }),
-    placeholder("Jot it down…"),
+    placeholder(PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)]),
     noteMarkdown,
     theme,
     markdownStyling,
@@ -64,8 +83,7 @@ export function createEditor({ parent, onChange, onEscape }: EditorOptions): Edi
     links,
     inlineMath,
     reminders,
-    search({ top: false }),
-    highlightSelectionMatches(),
+    find,
     keymap.of([
       ...mathKeymap,
       ...commandKeymap,
