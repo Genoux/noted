@@ -1,9 +1,11 @@
 import type { EditorState } from "@codemirror/state";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { setReminderLabels } from "./editor/reminders";
 import { createEditor } from "./editor/setup";
 import { renderTabs } from "./tabs";
-import { countWords, tabTitle } from "./text";
+import { countWords, reminderLabel, tabTitle } from "./text";
 
 const SAVE_DELAY_MS = 300;
 const ACTIVE_KEY = "noted.activeTab";
@@ -32,9 +34,36 @@ function flush(): void {
   window.clearTimeout(timer);
   timer = undefined;
   for (const [id, text] of pending) {
-    invoke("save_note", { id, text }).catch((e) => console.error(`save ${id} failed:`, e));
+    invoke("save_note", { id, text })
+      .then(() => {
+        if (id === activeId) void refreshReminders();
+      })
+      .catch((e) => console.error(`save ${id} failed:`, e));
   }
   pending.clear();
+}
+
+// --- reminders ------------------------------------------------------------
+
+interface ReminderEntry {
+  line: string;
+  at: string;
+  sent: boolean;
+}
+
+/** Pulls the active tab's reminder statuses from Rust into the editor. */
+async function refreshReminders(): Promise<void> {
+  const id = activeId;
+  try {
+    const entries = await invoke<ReminderEntry[]>("tab_reminders", { id });
+    if (id !== activeId) return;
+    const now = new Date();
+    const labels = new Map(entries.map((e) => [e.line, reminderLabel(e.at, e.sent, now)]));
+    editor.view.dispatch({ effects: setReminderLabels.of(labels) });
+    states.set(id, editor.view.state);
+  } catch (e) {
+    console.error("reminders refresh failed:", e);
+  }
 }
 
 function queueSave(id: string, text: string): void {
@@ -84,6 +113,7 @@ function select(id: string): void {
   }
   render();
   editor.view.focus();
+  void refreshReminders();
 }
 
 async function create(): Promise<void> {
@@ -157,6 +187,9 @@ try {
   // Fall back to the first tab.
 }
 select(remembered && states.has(remembered) ? remembered : order[0]);
+
+// A reminder fired: its status changes to "sent".
+void listen("reminders-changed", () => void refreshReminders());
 
 // Flush pending saves whenever the panel loses focus or hides.
 window.addEventListener("blur", flush);

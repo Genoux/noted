@@ -8,6 +8,7 @@ import { applyFontSize, commandKeymap } from "./commands";
 import { inlineMath, mathKeymap } from "./inline-math";
 import { links } from "./links";
 import { markdownStyling, noteMarkdown } from "./markdown";
+import { reminders } from "./reminders";
 import { tasks } from "./tasks";
 
 // Overrides of CodeMirror's base theme (scoped, so no !important needed).
@@ -62,6 +63,7 @@ export function createEditor({ parent, onChange, onEscape }: EditorOptions): Edi
     tasks,
     links,
     inlineMath,
+    reminders,
     search({ top: false }),
     highlightSelectionMatches(),
     keymap.of([

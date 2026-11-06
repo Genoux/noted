@@ -1,8 +1,11 @@
 //! Tauri shell: wires the window and IPC commands to `noted-core`.
 
 mod panel;
+mod reminders;
 
 use noted_core::NoteStore;
+use noted_core::reminder::{Entry, local_now};
+use reminders::Reminders;
 use tauri::{Manager, State, WindowEvent};
 
 /// Errors crossing the IPC boundary are sent to the frontend as strings.
@@ -28,8 +31,16 @@ fn load_note(store: State<'_, NoteStore>, id: &str) -> CmdResult<String> {
 
 #[tauri::command]
 #[allow(clippy::needless_pass_by_value)]
-fn save_note(store: State<'_, NoteStore>, id: &str, text: &str) -> CmdResult<()> {
-    ipc(store.save(id, text))
+fn save_note(
+    store: State<'_, NoteStore>,
+    reminders: State<'_, Reminders>,
+    id: &str,
+    text: &str,
+) -> CmdResult<()> {
+    ipc(store.save(id, text))?;
+    reminders
+        .with(|book| book.sync(id, text, local_now()))
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -40,17 +51,34 @@ fn create_tab(store: State<'_, NoteStore>) -> CmdResult<String> {
 
 #[tauri::command]
 #[allow(clippy::needless_pass_by_value)]
-fn close_tab(store: State<'_, NoteStore>, id: &str) -> CmdResult<()> {
-    ipc(store.close(id))
+fn close_tab(
+    store: State<'_, NoteStore>,
+    reminders: State<'_, Reminders>,
+    id: &str,
+) -> CmdResult<()> {
+    ipc(store.close(id))?;
+    reminders
+        .with(|book| book.forget(id))
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[allow(clippy::needless_pass_by_value)]
+fn tab_reminders(reminders: State<'_, Reminders>, id: &str) -> Vec<Entry> {
+    reminders.with(|book| book.for_tab(id))
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let result = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_notification::init())
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
-            app.manage(NoteStore::open(dir).map_err(|e| e.to_string())?);
+            let store = NoteStore::open(&dir).map_err(|e| e.to_string())?;
+            app.manage(reminders::load(&store, dir.join("reminders.json")));
+            app.manage(store);
+            reminders::start_ticker(app.handle().clone());
 
             // Menu bar utility: no Dock icon, no app menu.
             #[cfg(target_os = "macos")]
@@ -69,7 +97,12 @@ pub fn run() {
             }
         })
         .invoke_handler(tauri::generate_handler![
-            list_tabs, load_note, save_note, create_tab, close_tab
+            list_tabs,
+            load_note,
+            save_note,
+            create_tab,
+            close_tab,
+            tab_reminders,
         ])
         .build(tauri::generate_context!());
 

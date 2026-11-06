@@ -218,7 +218,7 @@ fn now_millis() -> u128 {
 }
 
 /// Writes to a sibling temp file, syncs it, then renames it over `path`.
-fn write_atomic(path: &Path, bytes: &[u8]) -> io::Result<()> {
+pub(crate) fn write_atomic(path: &Path, bytes: &[u8]) -> io::Result<()> {
     let mut tmp = path.as_os_str().to_owned();
     tmp.push(".tmp");
     let tmp = PathBuf::from(tmp);
