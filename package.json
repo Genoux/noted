@@ -26,7 +26,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.6.6",
     "@tauri-apps/cli": "^2",
-    "typescript": "~6.0.3",
+    "typescript": "~7.0.2",
     "vite": "^8.0.16",
     "vitest": "^5.1.0"
   },
