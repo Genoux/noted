@@ -12,16 +12,31 @@
     "withGlobalTauri": false,
     "windows": [
       {
+        "label": "main",
         "title": "Noted",
-        "width": 560,
-        "height": 440,
-        "minWidth": 320,
-        "minHeight": 200
+        "width": 820,
+        "height": 660,
+        "minWidth": 420,
+        "minHeight": 280,
+        "center": true,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "resizable": true,
+        "windowEffects": {
+          "effects": ["popover"],
+          "state": "active",
+          "radius": 16
+        }
       }
     ],
     "security": {
       "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'"
-    }
+    },
+    "macOSPrivateApi": true
   },
   "bundle": {
     "active": true,
