@@ -226,6 +226,10 @@ body {
   text-decoration-color: var(--muted);
 }
 
+.cm-math-answer {
+  color: var(--muted);
+}
+
 .cm-searchMatch {
   background: color-mix(in srgb, var(--accent) 25%, transparent);
   border-radius: 2px;
