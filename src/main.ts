@@ -216,3 +216,4 @@ footerButton("#help", toggleHelp);
 // Flush pending saves whenever the panel loses focus or hides.
 window.addEventListener("blur", flush);
 window.addEventListener("focus", () => editor.view.focus());
+void listen("panel-shown", () => editor.view.focus());

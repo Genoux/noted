@@ -1,7 +1,7 @@
 // Formatting and utility shortcuts.
 
 import { EditorSelection } from "@codemirror/state";
-import type { EditorView, KeyBinding } from "@codemirror/view";
+import { EditorView, type KeyBinding } from "@codemirror/view";
 import {
   DEFAULT_TEXT_SIZE,
   isoDate,
@@ -63,6 +63,8 @@ function setFontSize(view: EditorView, size: number): boolean {
   // The size is a CSS variable, which CodeMirror can't observe: measure again
   // so the caret and selection are redrawn at the new line height.
   view.requestMeasure();
+  // Lines reflow at the new size; keep the caret on screen.
+  view.dispatch({ effects: EditorView.scrollIntoView(view.state.selection.main.head) });
   return true;
 }
 

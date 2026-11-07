@@ -2,7 +2,7 @@
 
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
-use tauri::{AppHandle, Manager, Runtime, WebviewWindow, WindowEvent};
+use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewWindow, WindowEvent};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 
@@ -16,8 +16,10 @@ fn window<R: Runtime>(app: &AppHandle<R>) -> Option<WebviewWindow<R>> {
 pub fn show<R: Runtime>(app: &AppHandle<R>) {
     if let Some(w) = window(app) {
         let _ = w.show();
-        // No fade-in: the panel appears on the next frame.
         let _ = w.set_focus();
+        // The page focuses the editor on this; WebKitGTK doesn't always fire
+        // a window focus event when a hidden window comes back.
+        let _ = w.emit("panel-shown", ());
     }
 }
 

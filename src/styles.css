@@ -28,7 +28,8 @@
   --hairline: rgb(var(--rgb) / 0.12);
   --edge: rgb(var(--rgb) / 0.07); /* the panel's own outline */
   --hover: rgb(var(--rgb) / 0.06);
-  --selection: color-mix(in srgb, AccentColor var(--selection-alpha), transparent);
+  /* Fixed blue: WebKitGTK has no AccentColor, so it fell back to grey. */
+  --selection: rgb(80 140 255 / var(--selection-alpha));
   --body-font: Charter, "Iowan Old Style", Georgia, serif;
   --ui-font: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --mono-font: ui-monospace, "SF Mono", Menlo, monospace;
@@ -216,23 +217,23 @@ button {
 }
 
 .cm-task-box {
-  appearance: none;
+  display: inline-block;
   position: relative;
+  box-sizing: border-box;
   width: 0.72em;
   height: 0.72em;
   margin: 0 0.4em 0 0;
   vertical-align: -0.04em;
   border: 1.5px solid var(--mark);
   border-radius: 0.18em;
-  font-size: inherit;
   cursor: pointer;
 }
 
-.cm-task-box:checked {
+.cm-task-box[aria-checked="true"] {
   border-color: var(--text);
 }
 
-.cm-task-box:checked::after {
+.cm-task-box[aria-checked="true"]::after {
   content: "";
   position: absolute;
   left: 30%;
@@ -242,6 +243,14 @@ button {
   border: solid var(--text);
   border-width: 0 0.13em 0.13em 0;
   transform: rotate(45deg);
+}
+
+/* `- ` drawn as a bullet, in the space the dash took. */
+.cm-bullet {
+  display: inline-block;
+  width: 0.5em;
+  color: var(--mark);
+  text-align: center;
 }
 
 /* A ticked task fades to 40% and is struck through. */
