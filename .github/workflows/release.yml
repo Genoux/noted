@@ -37,7 +37,8 @@ jobs:
             targets: aarch64-apple-darwin,x86_64-apple-darwin
           - name: Linux x64
             os: ubuntu-24.04
-            args: ""
+            # No .rpm: its packager rejects pre-release versions like 0.1.0-alpha.1.
+            args: --bundles deb,appimage
             targets: ""
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
