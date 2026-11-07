@@ -7,7 +7,14 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!**/src-tauri/gen", "!**/dist", "!**/target"]
+    "includes": [
+      "**",
+      "!**/src-tauri/gen",
+      "!**/dist",
+      "!**/target",
+      "!CHANGELOG.md",
+      "!.release-please-manifest.json"
+    ]
   },
   "formatter": {
     "enabled": true,
