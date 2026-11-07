@@ -257,6 +257,8 @@ button {
   position: absolute;
   inset: 0;
   color: var(--mark);
+  font-family: var(--ui-font);
+  font-weight: 700;
   text-align: center;
 }
 
