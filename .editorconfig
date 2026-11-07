@@ -1,3 +1,4 @@
+# Managed by jb-toolkit (jb sync).
 root = true
 
 [*]
@@ -8,5 +9,11 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
 
-[*.rs]
+[*.{rs,py}]
 indent_size = 4
+
+[{Makefile,*.mk,go.mod,*.go}]
+indent_style = tab
+
+[*.md]
+trim_trailing_whitespace = false

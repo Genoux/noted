@@ -1,11 +1,8 @@
-## What
+<!-- Managed by jb-toolkit. Title is a Conventional Commit header (R3.3). -->
 
-<!-- One or two lines. -->
+## What and why
 
-## Why
+## How it was checked
 
-## Checklist
-
-- [ ] Title follows `type: subject` (see CONTRIBUTING.md)
-- [ ] Tests added or updated where it makes sense
-- [ ] Tried it in the running app (if UI-facing)
+- [ ] `scripts/check` passes
+- [ ] `AGENTS.md` updated if a decision, measurement or layout changed

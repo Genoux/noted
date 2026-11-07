@@ -47,6 +47,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag || needs.release-please.outputs.tag }}
+      - name: Tag matches manifest version
+        run: test "v$(.toolkit/version)" = "${{ inputs.tag || needs.release-please.outputs.tag }}"
       - name: Install Rust targets
         run: |
           rustup toolchain install
@@ -83,6 +85,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.TAG }}
+      - name: Tag matches manifest version
+        run: test "v$(.toolkit/version)" = "$TAG"
       - name: Install Linux system deps
         run: |
           sudo apt-get update
