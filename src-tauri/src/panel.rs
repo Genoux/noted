@@ -2,7 +2,7 @@
 
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
-use tauri::{AppHandle, Manager, Runtime, WebviewWindow, WindowEvent};
+use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewWindow, WindowEvent};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 
@@ -16,31 +16,41 @@ fn window<R: Runtime>(app: &AppHandle<R>) -> Option<WebviewWindow<R>> {
 pub fn show<R: Runtime>(app: &AppHandle<R>) {
     if let Some(w) = window(app) {
         let _ = w.show();
-        // No fade-in: the panel appears on the next frame.
         let _ = w.set_focus();
+        // The page focuses the editor on this; WebKitGTK doesn't always fire
+        // a window focus event when a hidden window comes back.
+        let _ = w.emit("panel-shown", ());
     }
 }
 
-/// Focus mode: the panel is a quick-capture popup, so clicking anywhere else
-/// (or switching apps) puts it away. Notes save as you type; nothing is lost.
-pub fn hide_on_blur<R: Runtime>(app: &AppHandle<R>) {
+/// Closing the window (e.g. the compositor's close key) only hides the
+/// panel, so the next summon brings back the same loaded page. Losing focus
+/// does nothing: with focus-follows-mouse, moving the pointer away would hide it.
+pub fn hide_on_close<R: Runtime>(app: &AppHandle<R>) {
     let Some(w) = window(app) else { return };
     let panel = w.clone();
     w.on_window_event(move |event| {
-        if let WindowEvent::Focused(false) = event {
+        if let WindowEvent::CloseRequested { api, .. } = event {
+            api.prevent_close();
             let _ = panel.hide();
         }
     });
 }
 
-/// Hides the panel if visible, otherwise shows it.
+/// Hides the focused panel; otherwise brings it up with focus.
 pub fn toggle<R: Runtime>(app: &AppHandle<R>) {
     let Some(w) = window(app) else { return };
-    if w.is_visible().unwrap_or(false) && w.is_focused().unwrap_or(false) {
+    let visible = w.is_visible().unwrap_or(false);
+    if visible && w.is_focused().unwrap_or(false) {
         let _ = w.hide();
-    } else {
-        show(app);
+        return;
     }
+    if visible {
+        // Open behind another window. Wayland ignores an app's own focus
+        // request, but compositors focus a window as it maps: remap it.
+        let _ = w.hide();
+    }
+    show(app);
 }
 
 /// Registers ⌥Space (Alt+Space) to toggle the panel from anywhere.

@@ -1,16 +1,17 @@
-// Clickable checkboxes for `- [ ]` task lines, plus ⌘L to toggle.
+// List markers drawn live: `- ` shows a bullet, `- [ ]` a clickable checkbox
+// (⌘L toggles), and typing `[] ` starts a task. The markdown text is unchanged.
 
 import { syntaxTree } from "@codemirror/language";
 import { EditorSelection, type Range, RangeSet } from "@codemirror/state";
 import {
   Decoration,
   type DecorationSet,
-  type EditorView,
+  EditorView,
   ViewPlugin,
   type ViewUpdate,
   WidgetType,
 } from "@codemirror/view";
-import { toggleTask } from "../text";
+import { taskShorthand, toggleTask } from "../text";
 
 class CheckboxWidget extends WidgetType {
   constructor(readonly checked: boolean) {
@@ -20,10 +21,12 @@ class CheckboxWidget extends WidgetType {
     return other.checked === this.checked;
   }
   toDOM() {
-    const box = document.createElement("input");
-    box.type = "checkbox";
+    // A span, not an <input>: a focusable control inside the editable text
+    // lets WebKit park the caret in or beside it.
+    const box = document.createElement("span");
     box.className = "cm-task-box";
-    box.checked = this.checked;
+    box.setAttribute("role", "checkbox");
+    box.setAttribute("aria-checked", String(this.checked));
     box.setAttribute("aria-label", this.checked ? "Mark not done" : "Mark done");
     return box;
   }
@@ -32,6 +35,9 @@ class CheckboxWidget extends WidgetType {
   }
 }
 
+// The dash stays real text, restyled by CSS into a dot. A replacing widget
+// here crashed WebKitGTK's web process as soon as "- " was typed.
+const bullet = Decoration.mark({ class: "cm-bullet" });
 const doneLine = Decoration.line({ class: "cm-task-done" });
 
 function taskDecorations(view: EditorView): DecorationSet {
@@ -41,6 +47,15 @@ function taskDecorations(view: EditorView): DecorationSet {
       from,
       to,
       enter: (node) => {
+        // A bullet list item's "-", "*" or "+", unless the item is a task.
+        if (
+          node.name === "ListMark" &&
+          node.node.parent?.parent?.name === "BulletList" &&
+          node.node.nextSibling?.name !== "Task"
+        ) {
+          ranges.push(bullet.range(node.from, node.to));
+          return;
+        }
         if (node.name !== "TaskMarker") return;
         const checked = view.state.sliceDoc(node.from + 1, node.to - 1) !== " ";
         // Swallow the "- " bullet too, so the box stands in for it.
@@ -99,6 +114,9 @@ export const tasks = ViewPlugin.fromClass(
   },
   {
     decorations: (p) => p.decorations,
+    // The caret steps over a bullet or box in one move, never into its markup.
+    provide: (plugin) =>
+      EditorView.atomicRanges.of((view) => view.plugin(plugin)?.decorations ?? Decoration.none),
     eventHandlers: {
       mousedown: (e, view) => {
         const target = e.target as HTMLElement;
@@ -109,3 +127,17 @@ export const tasks = ViewPlugin.fromClass(
     },
   },
 );
+
+/** Typing a space after `[]` or `[ ]` at the start of a line makes it a task. */
+export const taskShorthandInput = EditorView.inputHandler.of((view, from, to, text) => {
+  if (text !== " " || from !== to) return false;
+  const line = view.state.doc.lineAt(from);
+  const task = taskShorthand(view.state.sliceDoc(line.from, from));
+  if (task === null) return false;
+  view.dispatch({
+    changes: { from: line.from, to, insert: task },
+    selection: { anchor: line.from + task.length },
+    userEvent: "input.type",
+  });
+  return true;
+});

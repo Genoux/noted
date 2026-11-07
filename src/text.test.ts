@@ -7,6 +7,7 @@ import {
   reminderLabel,
   stepTextSize,
   tabTitle,
+  taskShorthand,
   toggleTask,
   toggleWrap,
 } from "./text";
@@ -89,5 +90,19 @@ describe("text size", () => {
     expect(stepTextSize(28, 1)).toBe(28);
     expect(stepTextSize(17, -1)).toBe(17);
     expect(stepTextSize(22, -1)).toBe(17); // old saved size snaps to nearest preset
+  });
+});
+
+describe("taskShorthand", () => {
+  it("turns [] and [ ] at the start of a line into a task", () => {
+    expect(taskShorthand("[]")).toBe("- [ ] ");
+    expect(taskShorthand("[ ]")).toBe("- [ ] ");
+    expect(taskShorthand("  []")).toBe("  - [ ] ");
+    expect(taskShorthand("- []")).toBe("- [ ] ");
+  });
+  it("leaves brackets elsewhere alone", () => {
+    expect(taskShorthand("see []")).toBeNull();
+    expect(taskShorthand("[x]")).toBeNull();
+    expect(taskShorthand("")).toBeNull();
   });
 });

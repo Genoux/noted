@@ -23,6 +23,15 @@ export function toggleTask(line: string): string {
   return `${indent}- [ ] ${line.slice(indent.length)}`;
 }
 
+/**
+ * `[]` or `[ ]` typed at the start of a line (after any indent or bullet),
+ * about to get a space: the task line it should become, else null.
+ */
+export function taskShorthand(beforeCursor: string): string | null {
+  const m = /^(\s*)(?:[-*+]\s+)?\[ ?\]$/.exec(beforeCursor);
+  return m ? `${m[1]}- [ ] ` : null;
+}
+
 /** Wraps `text` in `mark`, or unwraps it if already wrapped. */
 export function toggleWrap(text: string, mark: string): string {
   const wrapped = text.length >= mark.length * 2 && text.startsWith(mark) && text.endsWith(mark);

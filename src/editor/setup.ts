@@ -3,14 +3,14 @@
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { searchKeymap } from "@codemirror/search";
 import { EditorState, Prec } from "@codemirror/state";
-import { drawSelection, EditorView, keymap, placeholder } from "@codemirror/view";
+import { EditorView, keymap, placeholder } from "@codemirror/view";
 import { applyFontSize, commandKeymap } from "./commands";
 import { find } from "./find";
 import { inlineMath, mathKeymap } from "./inline-math";
 import { links } from "./links";
 import { markdownStyling, noteMarkdown } from "./markdown";
 import { reminders } from "./reminders";
-import { tasks } from "./tasks";
+import { taskShorthandInput, tasks } from "./tasks";
 
 // Overrides of CodeMirror's base theme (scoped, so no !important needed).
 const theme = EditorView.theme({
@@ -33,9 +33,10 @@ const theme = EditorView.theme({
     caretColor: "var(--caret)",
   },
   ".cm-line": { padding: "0" },
-  ".cm-cursor, .cm-dropCursor": { borderLeft: "2px solid var(--caret)" },
-  "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground":
-    { background: "var(--selection)" },
+  // Native caret and selection (no drawSelection): WebKit lays them out with
+  // the text, so they track size changes and mouse drags exactly. The drawn
+  // layer lagged behind on WebKitGTK.
+  ".cm-content ::selection": { background: "var(--selection)" },
   ".cm-line.cm-quote": { paddingLeft: "14px", borderLeft: "2px solid var(--rule)" },
 });
 
@@ -68,7 +69,6 @@ export function createEditor({ parent, onChange, onEscape }: EditorOptions): Edi
   };
   const extensions = [
     history(),
-    drawSelection(),
     EditorView.lineWrapping,
     EditorView.contentAttributes.of({
       spellcheck: "false",
@@ -81,6 +81,7 @@ export function createEditor({ parent, onChange, onEscape }: EditorOptions): Edi
     theme,
     markdownStyling,
     tasks,
+    taskShorthandInput,
     links,
     inlineMath,
     reminders,
