@@ -245,10 +245,17 @@ button {
   transform: rotate(45deg);
 }
 
-/* `- ` drawn as a bullet, in the space the dash took. */
+/* `- ` shows as a bullet: the dash stays text (so editing is plain), hidden
+   under a dot drawn in its place. */
 .cm-bullet {
-  display: inline-block;
-  width: 0.5em;
+  position: relative;
+  color: transparent;
+}
+
+.cm-bullet::after {
+  content: "•";
+  position: absolute;
+  inset: 0;
   color: var(--mark);
   text-align: center;
 }

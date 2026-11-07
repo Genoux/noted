@@ -35,19 +35,9 @@ class CheckboxWidget extends WidgetType {
   }
 }
 
-class BulletWidget extends WidgetType {
-  eq() {
-    return true;
-  }
-  toDOM() {
-    const dot = document.createElement("span");
-    dot.className = "cm-bullet";
-    dot.textContent = "•";
-    return dot;
-  }
-}
-
-const bullet = Decoration.replace({ widget: new BulletWidget() });
+// The dash stays real text, restyled by CSS into a dot. A replacing widget
+// here crashed WebKitGTK's web process as soon as "- " was typed.
+const bullet = Decoration.mark({ class: "cm-bullet" });
 const doneLine = Decoration.line({ class: "cm-task-done" });
 
 function taskDecorations(view: EditorView): DecorationSet {
