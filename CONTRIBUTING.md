@@ -25,9 +25,7 @@ CI rejects PR titles that don't match.
 ## Before pushing
 
 ```sh
-pnpm lint && pnpm build
-cargo fmt --all && cargo clippy --workspace --all-targets -- -D warnings
-cargo test --workspace
+scripts/check
 ```
 
 ## Code rules
