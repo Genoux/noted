@@ -233,16 +233,16 @@ button {
   border-color: var(--text);
 }
 
+/* A drawn check shape, not a rotated border: a rotated L sat low and right
+   and nearly filled the box. The path is centred in its 12×12 view box. */
 .cm-task-box[aria-checked="true"]::after {
+  --check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.6 6.3 5 8.6 9.4 3.6' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   content: "";
   position: absolute;
-  left: 30%;
-  top: 6%;
-  width: 28%;
-  height: 58%;
-  border: solid var(--text);
-  border-width: 0 0.13em 0.13em 0;
-  transform: rotate(45deg);
+  inset: 0;
+  background: var(--text);
+  -webkit-mask: var(--check) center / 78% no-repeat;
+  mask: var(--check) center / 78% no-repeat;
 }
 
 /* `- ` shows as a bullet: the dash and space stay text (so editing is plain),
