@@ -11,6 +11,7 @@ use std::fmt;
 use std::fs;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, PoisonError};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -138,13 +139,13 @@ impl NoteStore {
         }
         let trash = self.root.join(TRASH_DIR);
         fs::create_dir_all(&trash)?;
-        fs::rename(&path, trash.join(format!("{id}-{}.md", now_millis())))?;
+        fs::rename(&path, trash.join(format!("{id}-{}.md", unique_stamp())))?;
         let ids: Vec<String> = self.ordered_ids()?;
         self.write_order(&ids)
     }
 
     fn create_locked(&self, ids: &[String]) -> Result<String> {
-        let base = format!("note-{}", now_millis());
+        let base = format!("note-{}", unique_stamp());
         let mut id = base.clone();
         let mut n = 1;
         while self.note_path(&id)?.exists() {
@@ -211,10 +212,20 @@ fn validate_id(id: &str) -> Result<()> {
     }
 }
 
-fn now_millis() -> u128 {
-    SystemTime::now()
+/// Milliseconds since the epoch, bumped past the last stamp so two calls in the
+/// same millisecond (or after a clock step back) never collide: a reused stamp
+/// would revive a closed tab's id or overwrite its file in the trash.
+fn unique_stamp() -> u64 {
+    static LAST: AtomicU64 = AtomicU64::new(0);
+    let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map_or(0, |d| d.as_millis())
+        .map_or(0, |d| u64::try_from(d.as_millis()).unwrap_or(u64::MAX));
+    let previous = LAST
+        .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |last| {
+            Some(now.max(last + 1))
+        })
+        .unwrap_or_else(|last| last);
+    now.max(previous + 1)
 }
 
 /// Writes to a sibling temp file, syncs it, then renames it over `path`.

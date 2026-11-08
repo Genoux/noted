@@ -28,3 +28,20 @@ dist-ssr
 
 # Tauri
 /src-tauri/gen/schemas
+
+# >>> jb-toolkit (managed by jb sync; add your own lines outside this block)
+.DS_Store
+.env
+.env.*
+!.env.example
+.demo/
+dist/
+# agent tooling stays untracked (R3.4)
+.claude/
+.cursor/
+.codex/
+.serena/
+.engram/
+.atl/
+# <<< jb-toolkit
+target/

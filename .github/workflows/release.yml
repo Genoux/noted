@@ -3,12 +3,24 @@ name: Release
 on:
   push:
     branches: [main]
+  # Rebuilds a platform for a release that already exists, e.g. after its build failed.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to build, e.g. v0.1.0-alpha.2
+        required: true
+      platform:
+        description: Which build to run
+        type: choice
+        options: [all, macos, linux]
+        default: all
 
 permissions:
   contents: read
 
 jobs:
   release-please:
+    if: github.event_name == 'push'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     permissions:
@@ -21,37 +33,26 @@ jobs:
       - id: rp
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
 
-  build:
-    name: Build (${{ matrix.name }})
+  macos:
+    name: Build (macOS universal)
     needs: release-please
-    if: needs.release-please.outputs.created == 'true'
+    if: >-
+      !cancelled() && (needs.release-please.outputs.created == 'true' ||
+      (github.event_name == 'workflow_dispatch' && inputs.platform != 'linux'))
     permissions:
       contents: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: macOS universal
-            os: macos-latest
-            args: --target universal-apple-darwin
-            targets: aarch64-apple-darwin,x86_64-apple-darwin
-          - name: Linux x64
-            os: ubuntu-24.04
-            args: ""
-            targets: ""
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Install Linux system deps
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
+        with:
+          ref: ${{ inputs.tag || needs.release-please.outputs.tag }}
+      - name: Tag matches manifest version
+        run: test "v$(.toolkit/version)" = "${{ inputs.tag || needs.release-please.outputs.tag }}"
       - name: Install Rust targets
         run: |
           rustup toolchain install
-          for t in $(echo "${{ matrix.targets }}" | tr ',' ' '); do rustup target add "$t"; done
+          rustup target add aarch64-apple-darwin x86_64-apple-darwin
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -63,5 +64,46 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ needs.release-please.outputs.tag }}
-          args: ${{ matrix.args }}
+          tagName: ${{ inputs.tag || needs.release-please.outputs.tag }}
+          args: --target universal-apple-darwin
+
+  # Linux ships the bare binary, run against the system WebKitGTK (Wayland or X11).
+  # No .deb/.AppImage/.rpm: nobody installs those, and rpm rejects pre-release versions.
+  linux:
+    name: Build (Linux x64)
+    needs: release-please
+    if: >-
+      !cancelled() && (needs.release-please.outputs.created == 'true' ||
+      (github.event_name == 'workflow_dispatch' && inputs.platform != 'macos'))
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      TAG: ${{ inputs.tag || needs.release-please.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TAG }}
+      - name: Tag matches manifest version
+        run: test "v$(.toolkit/version)" = "$TAG"
+      - name: Install Linux system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
+      - run: rustup toolchain install
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tauri build --no-bundle
+      - name: Upload binary to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          archive="noted_${TAG#v}_linux_x86_64.tar.gz"
+          tar -czf "$archive" -C target/release noted
+          gh release upload "$TAG" "$archive" --clobber
