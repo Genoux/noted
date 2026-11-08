@@ -1,4 +1,4 @@
-// List markers drawn live: `- ` shows a bullet, `- [ ]` a clickable checkbox
+// List markers drawn live: `- ` shows a bullet (a lone `-` stays a dash), `- [ ]` a clickable checkbox
 // (⌘L toggles), and typing `[] ` starts a task. The markdown text is unchanged.
 
 import { syntaxTree } from "@codemirror/language";
@@ -35,9 +35,10 @@ class CheckboxWidget extends WidgetType {
   }
 }
 
-// The dash stays real text, restyled by CSS into a dot. A replacing widget
+// The "- " stays real text, restyled by CSS into a dot. A replacing widget
 // here crashed WebKitGTK's web process as soon as "- " was typed.
 const bullet = Decoration.mark({ class: "cm-bullet" });
+const bulletLine = Decoration.line({ class: "cm-bullet-line" });
 const doneLine = Decoration.line({ class: "cm-task-done" });
 
 function taskDecorations(view: EditorView): DecorationSet {
@@ -47,13 +48,16 @@ function taskDecorations(view: EditorView): DecorationSet {
       from,
       to,
       enter: (node) => {
-        // A bullet list item's "-", "*" or "+", unless the item is a task.
+        // A bullet list item's "-", "*" or "+" once a space follows it (Lezer
+        // already parses a lone "-" as an item), unless the item is a task.
         if (
           node.name === "ListMark" &&
           node.node.parent?.parent?.name === "BulletList" &&
-          node.node.nextSibling?.name !== "Task"
+          node.node.nextSibling?.name !== "Task" &&
+          view.state.sliceDoc(node.to, node.to + 1) === " "
         ) {
-          ranges.push(bullet.range(node.from, node.to));
+          ranges.push(bulletLine.range(view.state.doc.lineAt(node.from).from));
+          ranges.push(bullet.range(node.from, node.to + 1));
           return;
         }
         if (node.name !== "TaskMarker") return;

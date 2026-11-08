@@ -10,15 +10,20 @@ import {
   ViewPlugin,
   type ViewUpdate,
 } from "@codemirror/view";
-import { tags as t } from "@lezer/highlight";
+import { styleTags, tags as t } from "@lezer/highlight";
 
 /** GFM markdown, where `---` under a line is always a divider, never a "setext" heading. */
 export const noteMarkdown = markdown({
   base: markdownLanguage,
-  extensions: [{ remove: ["SetextHeading"] }],
+  extensions: [
+    { remove: ["SetextHeading"] },
+    // lang-markdown tags list markers like header and quote marks, which we mute;
+    // a list's "-" or "1." reads as text, and the bullet dot is drawn over it.
+    { props: [styleTags({ ListMark: t.list })] },
+  ],
 });
 
-const style = HighlightStyle.define([
+export const highlightStyle = HighlightStyle.define([
   { tag: t.heading1, fontSize: "1.4em", fontWeight: "700" },
   { tag: t.heading2, fontSize: "1.2em", fontWeight: "700" },
   { tag: t.heading3, fontSize: "1.05em", fontWeight: "700" },
@@ -84,4 +89,4 @@ const blockPlugin = ViewPlugin.fromClass(
   { decorations: (p) => p.decorations },
 );
 
-export const markdownStyling = [syntaxHighlighting(style), blockPlugin];
+export const markdownStyling = [syntaxHighlighting(highlightStyle), blockPlugin];

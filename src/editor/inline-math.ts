@@ -1,4 +1,8 @@
 // Shows the answer after lines ending in "=", dimmed. Tab types it in.
+//
+// The answer is drawn by CSS from a line attribute, not a widget: on WebKitGTK
+// 2.54 an answer widget crashed the web process as soon as a character was
+// typed on the line below it.
 
 import { type Range, RangeSet } from "@codemirror/state";
 import {
@@ -8,25 +12,8 @@ import {
   type KeyBinding,
   ViewPlugin,
   type ViewUpdate,
-  WidgetType,
 } from "@codemirror/view";
 import { evaluate } from "../math";
-
-class AnswerWidget extends WidgetType {
-  constructor(readonly answer: string) {
-    super();
-  }
-  eq(other: AnswerWidget) {
-    return other.answer === this.answer;
-  }
-  toDOM() {
-    const el = document.createElement("span");
-    el.className = "cm-math-answer";
-    el.textContent = ` ${this.answer}`;
-    el.setAttribute("aria-label", `equals ${this.answer}`);
-    return el;
-  }
-}
 
 function answers(view: EditorView): DecorationSet {
   const ranges: Range<Decoration>[] = [];
@@ -36,9 +23,8 @@ function answers(view: EditorView): DecorationSet {
       const line = doc.lineAt(pos);
       const answer = line.text.includes("=") ? evaluate(line.text) : null;
       if (answer) {
-        ranges.push(
-          Decoration.widget({ widget: new AnswerWidget(answer), side: 1 }).range(line.to),
-        );
+        const attributes = { "data-answer": ` ${answer}`, "aria-description": `equals ${answer}` };
+        ranges.push(Decoration.line({ class: "cm-math-line", attributes }).range(line.from));
       }
       pos = line.to + 1;
     }
