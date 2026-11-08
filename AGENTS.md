@@ -24,7 +24,19 @@ Read `PRODUCT.md` first.
 
 ## Decisions
 
-<!-- - YYYY-MM-DD: decision. Measured: number, how. Guards against: mistake. -->
+- 2026-11-08: inline decorations are drawn by CSS (marks, line classes,
+  `::after` from a line attribute), never by `Decoration.widget`/`replace`
+  next to editable text. Measured: WebKitGTK 2.54 aborted the web process
+  (SIGABRT) when typing on the line below the inline-math answer widget, and
+  earlier when `- ` became a replacing bullet widget; reproduced and verified
+  by driving the editor in a real WebKitGTK view (python `gi` WebKit2 4.1,
+  `document.execCommand('insertText')`, `web-process-terminated` signal).
+  Chrome never crashed. Guards against: shipping widget code that only
+  breaks on Linux. The task checkbox is the one remaining widget.
+- 2026-11-08: Linux ships the bare `noted` binary (tar.gz) in the same
+  release as macOS; no .deb, AppImage or .rpm. Only macOS and Linux/Wayland
+  are supported. Guards against: rpm rejecting pre-release versions, which
+  left alpha.1 and alpha.2 without a Linux build.
 
 ## Project rules
 
@@ -34,3 +46,12 @@ Read `PRODUCT.md` first.
   that disagrees with `.toolkit/version`.
 - Pull requests are squash-merged, not rebased (exception to R3.5): the PR
   title becomes the commit release-please reads, and CI validates that title.
+- Release PRs (opened by release-please) get no CI run, because GitHub does
+  not trigger workflows for PRs the Actions token opens: close and reopen the
+  PR to run CI, never `--admin`. Merge with `gh pr merge --squash --body ""`,
+  or GitHub writes `Co-authored-by:` trailers into the commit (R3.4). Two
+  such trailers already sit in `main`'s history (alpha.1, alpha.2 release
+  commits) and are left there, since rewriting tagged history costs more;
+  `jb check` reports them.
+- To rebuild one platform for an existing release, run the Release workflow
+  by hand with the tag and platform.
