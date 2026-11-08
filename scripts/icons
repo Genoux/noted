@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Renders the app and tray icons from the SVGs in src-tauri/icons/source.
+# Needs rsvg-convert (librsvg). Run after changing a source SVG.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+icons=src-tauri/icons
+
+rsvg-convert -w 1024 -h 1024 "$icons/source/app-icon.svg" -o "$icons/icon.png"
+pnpm tauri icon "$icons/icon.png" --output "$icons" >/dev/null 2>&1
+# Only macOS and Linux are supported: drop the Windows, iOS and Android sizes.
+rm -rf "$icons"/Square*Logo.png "$icons/StoreLogo.png" "$icons/icon.ico" "$icons/64x64.png" "$icons/android" "$icons/ios"
+
+# macOS menu bar: an 18 pt template image at 2x; macOS tints it to the bar.
+rsvg-convert -w 36 -h 36 "$icons/source/tray-template.svg" -o "$icons/tray-template.png"
+# Linux tray: white, for a dark bar.
+rsvg-convert -w 64 -h 64 "$icons/source/tray-light.svg" -o "$icons/tray-light.png"

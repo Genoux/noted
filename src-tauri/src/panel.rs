@@ -1,5 +1,6 @@
 //! The floating panel: summon/dismiss, global hotkey and menu bar icon.
 
+use tauri::image::Image;
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewWindow, WindowEvent};
@@ -78,7 +79,11 @@ pub fn build_tray<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     let quit_item = MenuItem::with_id(app, "quit", "Quit Noted", true, Some("CmdOrCtrl+Q"))?;
     let menu = Menu::with_items(app, &[&show_item, &quit_item])?;
 
-    let mut tray = TrayIconBuilder::with_id("tray")
+    // No fixed id: on Linux the icon is handed to the tray as a file named
+    // after the id, and hosts like Quickshell cache it by that name, so a
+    // fixed id kept showing the old icon after it changed. The default id is
+    // unique per launch.
+    let mut tray = TrayIconBuilder::new()
         .tooltip("Noted")
         .menu(&menu)
         .on_menu_event(|app, event| match event.id.as_ref() {
@@ -90,8 +95,20 @@ pub fn build_tray<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
             }
             _ => {}
         });
-    if let Some(icon) = app.default_window_icon() {
-        tray = tray.icon(icon.clone());
+    // macOS tints a template image to match the menu bar; Linux bars are dark.
+    #[cfg(target_os = "macos")]
+    {
+        tray = tray
+            .icon(Image::from_bytes(include_bytes!(
+                "../icons/tray-template.png"
+            ))?)
+            .icon_as_template(true);
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        tray = tray.icon(Image::from_bytes(include_bytes!(
+            "../icons/tray-light.png"
+        ))?);
     }
     tray.build(app)?;
     Ok(())
