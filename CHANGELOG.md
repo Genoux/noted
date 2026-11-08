@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.0-alpha.2](https://github.com/Genoux/noted/compare/v0.1.0-alpha.1...v0.1.0-alpha.2) (2026-11-08)
+
+
+### Bug Fixes
+
+* bullets in text colour, caret lands on the text after "- " ([#16](https://github.com/Genoux/noted/issues/16)) ([6f2f4eb](https://github.com/Genoux/noted/commit/6f2f4eb0020033562157878a2ed297e919516b4e))
+* typing below a calculator line no longer crashes the panel ([#15](https://github.com/Genoux/noted/issues/15)) ([8fd8411](https://github.com/Genoux/noted/commit/8fd84112142b36f1863b68c9f8fc2ac1938daad4))
+
+
+### Miscellaneous Chores
+
+* release 0.1.0-alpha.2 ([#18](https://github.com/Genoux/noted/issues/18)) ([16fa3f8](https://github.com/Genoux/noted/commit/16fa3f83b0bd84290fed8591f074743440eb41db))
+
 ## 0.1.0-alpha.1 (2026-11-07)
 
 
