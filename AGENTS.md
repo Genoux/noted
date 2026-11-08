@@ -38,6 +38,18 @@ Read `PRODUCT.md` first.
   are supported. Guards against: rpm rejecting pre-release versions, which
   left alpha.1 and alpha.2 without a Linux build.
 
+- 2026-11-08: brand is a typographic n from Newsreader (SIL OFL), kept as
+  vector outlines in `src-tauri/icons/source/` and rendered by
+  `scripts/icons`. Notes are set in Newsreader too, shipped in `src/fonts/`:
+  Charter is not installed on Linux, so notes fell back to whatever serif
+  was there. Look: graphite, no accent, near-white text; the active tab is
+  one shape with the page. Chosen by the owner from local mockups of four
+  directions, then eight icons, then six serifs.
+- 2026-11-08: the tray has no fixed id. On Linux the icon reaches the tray
+  as a file named after the id, and Quickshell cached it by that name, so
+  the old icon stayed after it changed. macOS uses a template image so the
+  menu bar tints it; Linux gets a white n for a dark bar.
+
 ## Project rules
 
 - Releases use release-please, not `jb bump` / `jb tag` (exception to R4.3):
