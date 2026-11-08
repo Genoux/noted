@@ -245,9 +245,21 @@ button {
   transform: rotate(45deg);
 }
 
-/* `- ` shows as a bullet: the dash stays text (so editing is plain), hidden
-   under a dot drawn in its place. */
+/* `- ` shows as a bullet: the dash and space stay text (so editing is plain),
+   hidden under a dot in a fixed-width box. Wrapped lines hang under the text.
+   The text sits right-aligned, unwrapped, so the caret after the space lands
+   where the item's text starts instead of mid-box. */
+.cm-content .cm-line.cm-bullet-line {
+  padding-left: 1.1em;
+  text-indent: -1.1em;
+}
+
 .cm-bullet {
+  display: inline-block;
+  width: 1.1em;
+  text-indent: 0;
+  text-align: right;
+  white-space: pre;
   position: relative;
   color: transparent;
 }
@@ -255,11 +267,10 @@ button {
 .cm-bullet::after {
   content: "•";
   position: absolute;
-  inset: 0;
-  color: var(--mark);
+  inset: 0 auto 0 0.15em;
+  color: var(--text);
   font-family: var(--ui-font);
   font-weight: 700;
-  text-align: center;
 }
 
 /* A ticked task fades to 40% and is struck through. */
