@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.1.0-alpha.3](https://github.com/Genoux/noted/compare/v0.1.0-alpha.2...v0.1.0-alpha.3) (2026-11-08)
+
+
+### Features
+
+* newsreader n logo, tray icon and graphite look ([#24](https://github.com/Genoux/noted/issues/24)) ([6b2c678](https://github.com/Genoux/noted/commit/6b2c678eb3499112631b59bb2e29e6d873248760))
+
+
+### Bug Fixes
+
+* new tabs never reuse a closed tab's id ([#20](https://github.com/Genoux/noted/issues/20)) ([646247e](https://github.com/Genoux/noted/commit/646247e5ea45a380f69ff1ff4e4c887d8bf10b67))
+* smaller, centred tick in checked task boxes ([#23](https://github.com/Genoux/noted/issues/23)) ([5b066c6](https://github.com/Genoux/noted/commit/5b066c6133082bef6b18845590d486d6d7959cf1))
+
+
+### Miscellaneous Chores
+
+* release 0.1.0-alpha.3 ([d77e115](https://github.com/Genoux/noted/commit/d77e1154acd51d4675eb145f3c74688f24401c97))
+
 ## [0.1.0-alpha.2](https://github.com/Genoux/noted/compare/v0.1.0-alpha.1...v0.1.0-alpha.2) (2026-11-08)
 
 

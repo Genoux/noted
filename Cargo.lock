@@ -2198,7 +2198,7 @@ checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
 
 [[package]]
 name = "noted"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 dependencies = [
  "noted-core",
  "objc2",
@@ -2214,7 +2214,7 @@ dependencies = [
 
 [[package]]
 name = "noted-core"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 dependencies = [
  "chrono",
  "serde",
