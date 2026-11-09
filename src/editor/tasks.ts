@@ -2,44 +2,33 @@
 // (⌘L toggles), and typing `[] ` starts a task. The markdown text is unchanged.
 
 import { syntaxTree } from "@codemirror/language";
-import { EditorSelection, type Range, RangeSet } from "@codemirror/state";
+import { EditorSelection, Prec, type Range, RangeSet } from "@codemirror/state";
 import {
   Decoration,
   type DecorationSet,
   EditorView,
+  keymap,
   ViewPlugin,
   type ViewUpdate,
-  WidgetType,
 } from "@codemirror/view";
-import { taskShorthand, toggleTask } from "../text";
+import { listMarkerLength, taskShorthand, toggleTask } from "../text";
 
-class CheckboxWidget extends WidgetType {
-  constructor(readonly checked: boolean) {
-    super();
-  }
-  eq(other: CheckboxWidget) {
-    return other.checked === this.checked;
-  }
-  toDOM() {
-    // A span, not an <input>: a focusable control inside the editable text
-    // lets WebKit park the caret in or beside it.
-    const box = document.createElement("span");
-    box.className = "cm-task-box";
-    box.setAttribute("role", "checkbox");
-    box.setAttribute("aria-checked", String(this.checked));
-    box.setAttribute("aria-label", this.checked ? "Mark not done" : "Mark done");
-    return box;
-  }
-  ignoreEvent() {
-    return false;
-  }
-}
-
-// The "- " stays real text, restyled by CSS into a dot. A replacing widget
-// here crashed WebKitGTK's web process as soon as "- " was typed.
+// List markers stay real text, restyled by CSS: "- " into a dot, "- [ ]" into
+// a box. Replacing widgets here crashed WebKitGTK's web process: the bullet as
+// soon as "- " was typed, the box when a selection across it was deleted.
 const bullet = Decoration.mark({ class: "cm-bullet" });
 const bulletLine = Decoration.line({ class: "cm-bullet-line" });
 const doneLine = Decoration.line({ class: "cm-task-done" });
+const doneText = Decoration.mark({ class: "cm-task-done-text" });
+const taskBox = (checked: boolean) =>
+  Decoration.mark({
+    class: "cm-task-box",
+    attributes: {
+      role: "checkbox",
+      "aria-checked": String(checked),
+      "aria-label": checked ? "Mark not done" : "Mark done",
+    },
+  });
 
 function taskDecorations(view: EditorView): DecorationSet {
   const ranges: Range<Decoration>[] = [];
@@ -62,13 +51,16 @@ function taskDecorations(view: EditorView): DecorationSet {
         }
         if (node.name !== "TaskMarker") return;
         const checked = view.state.sliceDoc(node.from + 1, node.to - 1) !== " ";
-        // Swallow the "- " bullet too, so the box stands in for it.
+        // Cover the "- " bullet too, so the box stands in for it.
         const mark = node.node.parent?.prevSibling;
         const from = mark?.name === "ListMark" ? mark.from : node.from;
-        ranges.push(
-          Decoration.replace({ widget: new CheckboxWidget(checked) }).range(from, node.to),
-        );
-        if (checked) ranges.push(doneLine.range(view.state.doc.lineAt(node.from).from));
+        ranges.push(taskBox(checked).range(from, node.to));
+        if (!checked) return;
+        const line = view.state.doc.lineAt(node.from);
+        ranges.push(doneLine.range(line.from));
+        // Strike the words only, not the indent or the box before them.
+        const textFrom = Math.min(node.to + 1, line.to);
+        if (textFrom < line.to) ranges.push(doneText.range(textFrom, line.to));
       },
     });
   }
@@ -123,8 +115,8 @@ export const tasks = ViewPlugin.fromClass(
       EditorView.atomicRanges.of((view) => view.plugin(plugin)?.decorations ?? Decoration.none),
     eventHandlers: {
       mousedown: (e, view) => {
-        const target = e.target as HTMLElement;
-        if (!target.classList.contains("cm-task-box")) return false;
+        const target = (e.target as HTMLElement).closest(".cm-task-box");
+        if (!target) return false;
         e.preventDefault();
         return toggleAt(view, view.posAtDOM(target));
       },
@@ -145,3 +137,28 @@ export const taskShorthandInput = EditorView.inputHandler.of((view, from, to, te
   });
   return true;
 });
+
+/**
+ * Backspace with the caret on a bullet or box (just after it, or at the line
+ * start before it) deletes it, indent included, so the next Backspace joins
+ * the line above. lang-markdown's own Backspace turns the marker into spaces,
+ * and from the line start the raw markup was joined onto the line above.
+ */
+function deleteListMarker(view: EditorView): boolean {
+  const { main } = view.state.selection;
+  if (!main.empty) return false;
+  const line = view.state.doc.lineAt(main.head);
+  const markerEnd = line.from + listMarkerLength(line.text);
+  if (markerEnd === line.from || main.head > markerEnd) return false;
+  view.dispatch({
+    changes: { from: line.from, to: markerEnd },
+    selection: { anchor: line.from },
+    userEvent: "delete.backward",
+  });
+  return true;
+}
+
+// Above lang-markdown's keymap, which is Prec.high.
+export const listMarkerBackspace = Prec.highest(
+  keymap.of([{ key: "Backspace", run: deleteListMarker }]),
+);

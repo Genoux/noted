@@ -32,7 +32,10 @@ Read `PRODUCT.md` first.
   by driving the editor in a real WebKitGTK view (python `gi` WebKit2 4.1,
   `document.execCommand('insertText')`, `web-process-terminated` signal).
   Chrome never crashed. Guards against: shipping widget code that only
-  breaks on Linux. The task checkbox is the one remaining widget.
+  breaks on Linux. The task checkbox followed (2026-11-08): deleting a
+  selection across a `- [ ]` replace widget aborted the web process (4 of 400
+  random deletes over a real note; 0 after drawing it from a mark). The
+  reminder status after a line is the one remaining widget.
 - 2026-11-08: Linux ships the bare `noted` binary (tar.gz) in the same
   release as macOS; no .deb, AppImage or .rpm. Only macOS and Linux/Wayland
   are supported. Guards against: rpm rejecting pre-release versions, which

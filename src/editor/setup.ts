@@ -10,7 +10,7 @@ import { inlineMath, mathKeymap } from "./inline-math";
 import { links } from "./links";
 import { markdownStyling, noteMarkdown } from "./markdown";
 import { reminders } from "./reminders";
-import { taskShorthandInput, tasks } from "./tasks";
+import { listMarkerBackspace, taskShorthandInput, tasks } from "./tasks";
 
 // Overrides of CodeMirror's base theme (scoped, so no !important needed).
 const theme = EditorView.theme({
@@ -82,6 +82,7 @@ export function createEditor({ parent, onChange, onEscape }: EditorOptions): Edi
     markdownStyling,
     tasks,
     taskShorthandInput,
+    listMarkerBackspace,
     links,
     inlineMath,
     reminders,

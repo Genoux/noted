@@ -272,30 +272,45 @@ button {
   color: transparent;
 }
 
+/* `- [ ]` shows as a box: the markdown stays text at size 0 and the box is
+   drawn over it, sized from the note's font size. */
 .cm-task-box {
   display: inline-block;
   position: relative;
-  box-sizing: border-box;
-  width: 0.72em;
-  height: 0.72em;
-  margin: 0 0.4em 0 0;
-  vertical-align: -0.04em;
-  border: 1.5px solid var(--mark);
-  border-radius: 0.18em;
+  font-size: 0;
+  vertical-align: calc(var(--font-size, 20px) * -0.04);
   cursor: pointer;
 }
 
-.cm-task-box[aria-checked="true"] {
+.cm-task-box::before,
+.cm-task-box::after {
+  font-size: var(--font-size, 20px);
+  width: 0.72em;
+  height: 0.72em;
+}
+
+.cm-task-box::before {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  margin-right: 0.4em;
+  border: 1.5px solid var(--mark);
+  border-radius: 0.18em;
+}
+
+.cm-task-box[aria-checked="true"]::before {
   border-color: var(--text);
 }
 
 /* A drawn check shape, not a rotated border: a rotated L sat low and right
-   and nearly filled the box. The path is centred in its 12×12 view box. */
+   and nearly filled the box. The path is centred in its 12×12 view box.
+   A data URL, so the CSP's img-src must allow data:. */
 .cm-task-box[aria-checked="true"]::after {
   --check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.6 6.3 5 8.6 9.4 3.6' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   content: "";
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   background: var(--text);
   -webkit-mask: var(--check) center / 78% no-repeat;
   mask: var(--check) center / 78% no-repeat;
@@ -332,6 +347,9 @@ button {
 /* A ticked task fades to 40% and is struck through. */
 .cm-task-done {
   opacity: 0.4;
+}
+
+.cm-task-done-text {
   text-decoration: line-through;
 }
 
