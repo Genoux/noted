@@ -40,6 +40,24 @@ const theme = EditorView.theme({
   ".cm-line.cm-quote": { paddingLeft: "14px", borderLeft: "2px solid var(--rule)" },
 });
 
+// WebKitGTK fires `cut` twice for one Ctrl+X when nothing is selected, and
+// CodeMirror cuts the caret's whole line on each, so two lines went. Keep only
+// the first cut of a key press; a second press comes in a later task.
+let cutTaken = false;
+const singleCut = EditorView.domEventHandlers({
+  cut(event) {
+    if (cutTaken) {
+      event.preventDefault();
+      return true;
+    }
+    cutTaken = true;
+    setTimeout(() => {
+      cutTaken = false;
+    });
+    return false;
+  },
+});
+
 const PLACEHOLDERS = [
   "What's on your mind?",
   "Type your first thought…",
@@ -87,6 +105,7 @@ export function createEditor({ parent, onChange, onEscape }: EditorOptions): Edi
     inlineMath,
     reminders,
     find,
+    singleCut,
     keymap.of([
       ...mathKeymap,
       ...commandKeymap,
