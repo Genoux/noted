@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.0-alpha.4](https://github.com/Genoux/noted/compare/v0.1.0-alpha.3...v0.1.0-alpha.4) (2026-11-09)
+
+
+### Bug Fixes
+
+* cut one line with ctrl+x when nothing is selected ([#29](https://github.com/Genoux/noted/issues/29)) ([4e9416d](https://github.com/Genoux/noted/commit/4e9416dea33f26893e61bfda03556c11558e7f46))
+* open noted on a left click of the linux tray icon ([#26](https://github.com/Genoux/noted/issues/26)) ([8dd1b73](https://github.com/Genoux/noted/commit/8dd1b73c1ccc0a44a1bb9acfc5067d24462b8140))
+* task boxes no longer crash, show the tick and delete cleanly ([#27](https://github.com/Genoux/noted/issues/27)) ([aab737f](https://github.com/Genoux/noted/commit/aab737f02baff989c2c67c6cbfb7e7019cc63ba2))
+
+
+### Miscellaneous Chores
+
+* release 0.1.0-alpha.4 ([#30](https://github.com/Genoux/noted/issues/30)) ([ccf39d6](https://github.com/Genoux/noted/commit/ccf39d682993d7121bcfb416cf1441cf2e8d6791))
+
 ## [0.1.0-alpha.3](https://github.com/Genoux/noted/compare/v0.1.0-alpha.2...v0.1.0-alpha.3) (2026-11-08)
 
 
