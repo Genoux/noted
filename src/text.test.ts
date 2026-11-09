@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   countWords,
   isoDate,
+  listMarkerLength,
   nextTextSize,
   REMINDER_RE,
   reminderLabel,
@@ -16,6 +17,23 @@ describe("countWords", () => {
   it("counts whitespace-separated words", () => {
     expect(countWords("")).toBe(0);
     expect(countWords("  one\n two\tthree ")).toBe(3);
+  });
+});
+
+describe("listMarkerLength", () => {
+  it("measures a leading bullet or task box, indent included", () => {
+    expect(listMarkerLength("- milk")).toBe(2);
+    expect(listMarkerLength("- [ ] milk")).toBe(6);
+    expect(listMarkerLength("  * [x] milk")).toBe(8);
+    expect(listMarkerLength("- [ ] ")).toBe(6);
+    expect(listMarkerLength("- [ ]")).toBe(5);
+  });
+  it("is 0 for text, a lone dash, or nothing", () => {
+    expect(listMarkerLength("")).toBe(0);
+    expect(listMarkerLength("  milk")).toBe(0);
+    expect(listMarkerLength("-")).toBe(0);
+    expect(listMarkerLength("-milk")).toBe(0);
+    expect(listMarkerLength("> quote")).toBe(0);
   });
 });
 

@@ -23,6 +23,11 @@ export function toggleTask(line: string): string {
   return `${indent}- [ ] ${line.slice(indent.length)}`;
 }
 
+/** Length of the bullet or task box a line starts with, indent included; 0 if none. */
+export function listMarkerLength(line: string): number {
+  return /^\s*[-*+] (?:\[[ xX]\](?: |$))?/.exec(line)?.[0].length ?? 0;
+}
+
 /**
  * `[]` or `[ ]` typed at the start of a line (after any indent or bullet),
  * about to get a space: the task line it should become, else null.
