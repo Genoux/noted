@@ -45,10 +45,13 @@ Read `PRODUCT.md` first.
   was there. Look: graphite, no accent, near-white text; the active tab is
   one shape with the page. Chosen by the owner from local mockups of four
   directions, then eight icons, then six serifs.
-- 2026-11-08: the tray has no fixed id. On Linux the icon reaches the tray
-  as a file named after the id, and Quickshell cached it by that name, so
-  the old icon stayed after it changed. macOS uses a template image so the
-  menu bar tints it; Linux gets a white n for a dark bar.
+- 2026-11-08: on Linux the tray uses tray-icon's ksni backend
+  (StatusNotifierItem over D-Bus), not Tauri's default libappindicator:
+  libappindicator never reports a left click, so clicking the icon did
+  nothing. Checked by calling `Activate` on the item with busctl: the panel
+  opened and took focus. ksni also sends the icon as pixels, so Quickshell no
+  longer caches a stale icon file by tray id. macOS uses a template image so
+  the menu bar tints it; Linux gets a white n for a dark bar.
 
 ## Project rules
 

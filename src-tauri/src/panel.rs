@@ -3,6 +3,8 @@
 use tauri::image::Image;
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
+#[cfg(target_os = "linux")]
+use tauri::tray::{MouseButton, TrayIconEvent};
 use tauri::{AppHandle, Emitter, Manager, Runtime, WebviewWindow, WindowEvent};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 use tauri_plugin_window_state::{AppHandleExt, StateFlags};
@@ -79,10 +81,6 @@ pub fn build_tray<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     let quit_item = MenuItem::with_id(app, "quit", "Quit Noted", true, Some("CmdOrCtrl+Q"))?;
     let menu = Menu::with_items(app, &[&show_item, &quit_item])?;
 
-    // No fixed id: on Linux the icon is handed to the tray as a file named
-    // after the id, and hosts like Quickshell cache it by that name, so a
-    // fixed id kept showing the old icon after it changed. The default id is
-    // unique per launch.
     let mut tray = TrayIconBuilder::new()
         .tooltip("Noted")
         .menu(&menu)
@@ -95,6 +93,20 @@ pub fn build_tray<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
             }
             _ => {}
         });
+    // macOS opens the menu on a left click, like every menu bar icon; Linux
+    // trays leave the menu to the right click, so the left click opens Noted.
+    #[cfg(target_os = "linux")]
+    {
+        tray = tray.on_tray_icon_event(|icon, event| {
+            if let TrayIconEvent::Click {
+                button: MouseButton::Left,
+                ..
+            } = event
+            {
+                show(icon.app_handle());
+            }
+        });
+    }
     // macOS tints a template image to match the menu bar; Linux bars are dark.
     #[cfg(target_os = "macos")]
     {
