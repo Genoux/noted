@@ -29,6 +29,12 @@ tauri-plugin-opener = "2"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-window-state = "2"
 
+[target.'cfg(target_os = "linux")'.dependencies]
+# Already in the tree via Tauri, which picks libappindicator. Turning on ksni
+# makes tray-icon use its StatusNotifierItem backend instead, the only one that
+# reports a left click (Activate), so clicking the icon can open the panel.
+tray-icon = { version = "0.25", default-features = false, features = ["ksni"] }
+
 [target.'cfg(target_os = "macos")'.dependencies]
 # Already in the tree via Tauri; used to round the native window corners.
 objc2 = "0.6"
