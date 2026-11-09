@@ -12,6 +12,9 @@ allow = [
   "ISC", "Zlib", "Unicode-3.0", "MPL-2.0", "CC0-1.0", "BSL-1.0", "0BSD", "CDLA-Permissive-2.0",
 ]
 confidence-threshold = 0.9
+# ksni, tray-icon's StatusNotifierItem backend for the Linux tray, is public
+# domain under the Unlicense.
+exceptions = [{ name = "ksni", allow = ["Unlicense"] }]
 
 [bans]
 multiple-versions = "allow"
