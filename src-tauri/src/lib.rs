@@ -1,6 +1,8 @@
 //! Tauri shell: wires the window and IPC commands to `noted-core`.
 
 mod corners;
+#[cfg(target_os = "linux")]
+mod launcher_icon;
 mod panel;
 mod reminders;
 mod remote;
@@ -94,6 +96,11 @@ pub fn run() {
             app.manage(reminders::load(&store, dir.join("reminders.json")));
             app.manage(store);
             reminders::start_ticker(app.handle().clone());
+
+            #[cfg(target_os = "linux")]
+            if let Err(e) = launcher_icon::refresh(&app.path().data_dir()?) {
+                eprintln!("could not refresh the launcher icon: {e}");
+            }
 
             // Menu bar utility: no Dock icon, no app menu.
             #[cfg(target_os = "macos")]
