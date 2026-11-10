@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.0-alpha.5](https://github.com/Genoux/noted/compare/v0.1.0-alpha.4...v0.1.0-alpha.5) (2026-11-10)
+
+
+### Bug Fixes
+
+* keep the linux launcher icon current with the binary ([ed93e80](https://github.com/Genoux/noted/commit/ed93e802d30179c03be1ae2e56666cb5dc8be324))
+* **release:** bump the alpha number on prerelease releases ([e5d4f13](https://github.com/Genoux/noted/commit/e5d4f13a22546d2b02554def7785070109b9eb30))
+* stop noted crashing on a note line with a multibyte character ([308513a](https://github.com/Genoux/noted/commit/308513aafecf60b14c2bc683349fd153014b444e))
+
 ## [0.1.0-alpha.4](https://github.com/Genoux/noted/compare/v0.1.0-alpha.3...v0.1.0-alpha.4) (2026-11-09)
 
 
