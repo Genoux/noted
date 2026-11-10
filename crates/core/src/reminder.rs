@@ -118,7 +118,9 @@ fn strip_trigger(line: &str) -> Option<&str> {
         }
     }
     for trigger in ["remind me", "reminder"] {
-        if s.len() >= trigger.len() && s[..trigger.len()].eq_ignore_ascii_case(trigger) {
+        if s.get(..trigger.len())
+            .is_some_and(|head| head.eq_ignore_ascii_case(trigger))
+        {
             let rest = &s[trigger.len()..];
             if rest.is_empty() || rest.starts_with([' ', ':', ',']) {
                 return Some(rest.trim_start_matches([':', ',']).trim());
@@ -453,6 +455,7 @@ mod tests {
         assert!(parse("reminders are great at 3pm", now()).is_none());
         assert!(is_reminder_line("Remind me to do it"));
         assert!(!is_reminder_line("reminders list"));
+        assert!(!is_reminder_line("x = 12 ≈ 3.46"), "multibyte at the cut");
     }
 
     #[test]
