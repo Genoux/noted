@@ -73,3 +73,5 @@ Read `PRODUCT.md` first.
   `jb check` reports them.
 - To rebuild one platform for an existing release, run the Release workflow
   by hand with the tag and platform.
+
+Every agent follows the shared rules in `.toolkit/RULES.md` (managed by jb-toolkit); deliberate exceptions are in `.jb-exceptions`.
