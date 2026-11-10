@@ -11,6 +11,7 @@
       "**",
       "!**/src-tauri/gen",
       "!**/dist",
+      "!.toolkit",
       "!**/target",
       "!CHANGELOG.md",
       "!.release-please-manifest.json"
