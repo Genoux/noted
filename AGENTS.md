@@ -60,6 +60,12 @@ Read `PRODUCT.md` first.
   when the bytes differ). The release ships only the binary, so the icon
   copied there by hand on 11-07 was still the Tauri scaffold icon after the
   rebrand. Guards against: an icon change that never reaches the launcher.
+- 2026-11-10: release-please uses `"versioning": "prerelease"`. With the
+  default strategy, two fixes on `0.1.0-alpha.4` became `0.1.1-alpha.4`
+  (patch bumped, prerelease suffix kept). Forcing the version with an empty
+  `Release-As:` commit did not work either: the rebase merge dropped the
+  empty commit, so release-please never saw it. Guards against: a release
+  PR that skips the next alpha.
 
 ## Project rules
 

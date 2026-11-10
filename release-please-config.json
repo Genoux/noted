@@ -23,6 +23,8 @@
         }
       ],
       "initial-version": "0.1.0",
+      "versioning": "prerelease",
+      "prerelease-type": "alpha",
       "prerelease": true
     }
   }
