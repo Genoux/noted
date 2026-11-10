@@ -197,12 +197,17 @@ Optional, when the project has them: `DESIGN.md` (UI system),
    (`version`, `notes`, `pub_date`, `platforms.<os-arch>.{url,signature}`),
    whatever the stack. URLs point at
    `https://github.com/<owner>/<repo>/releases/download/vX.Y.Z/<file>`.
+   A Tauri app keeps Tauri's base64-wrapped signature; any other app may put
+   the minisign `.sig` text as it is, since it reads its own feed.
 3. The app checks
    `https://github.com/<owner>/<repo>/releases/latest/download/latest.json`
    at startup. A desktop app shows "Update available" with an Update button;
    a CLI prints one line and offers `<app> update`. It verifies the signature
    against the public key built into it before replacing itself, and never
-   installs an unsigned or unverified update.
+   installs an unsigned or unverified update. The new files are written
+   beside the old ones and renamed into place before anything is stopped:
+   copying over a running binary fails ("Text file busy" on Linux) and
+   leaves the app stopped.
 4. The signing key lives only in the repo's Actions secrets
    `UPDATER_SIGNING_KEY` and `UPDATER_SIGNING_KEY_PASSWORD`; `release.yml`
    hands them to `scripts/build`. Losing the key strands every installed
