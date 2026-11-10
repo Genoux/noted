@@ -67,12 +67,13 @@ Read `PRODUCT.md` first.
   it already bumps `Cargo.toml`, `Cargo.lock` and `package.json` together,
   writes `CHANGELOG.md` and tags on merge. `release.yml` still refuses a tag
   that disagrees with `.toolkit/version`.
-- Pull requests are squash-merged, not rebased (exception to R3.5): the PR
-  title becomes the commit release-please reads, and CI validates that title.
+- Pull requests are rebase-merged (R3.5), one commit each, so the commit
+  release-please reads matches the PR title CI validates. GitHub refuses
+  squash merges here since 2026-11-10.
 - Release PRs (opened by release-please) get no CI run, because GitHub does
   not trigger workflows for PRs the Actions token opens: close and reopen the
-  PR to run CI, never `--admin`. Merge with `gh pr merge --squash --body ""`,
-  or GitHub writes `Co-authored-by:` trailers into the commit (R3.4). Two
+  PR to run CI, never `--admin`. Merge with `gh pr merge --rebase`: the old
+  squash merges wrote `Co-authored-by:` trailers into the commit (R3.4). Two
   such trailers already sit in `main`'s history (alpha.1, alpha.2 release
   commits) and are left there, since rewriting tagged history costs more;
   `jb check` reports them.
