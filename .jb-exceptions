@@ -1,0 +1,3 @@
+R3.4: two co-authored-by trailers in the alpha.1 and alpha.2 release commits stay, since rewriting tagged history costs more (AGENTS.md)
+R3.5: pull requests are squash-merged so the PR title is the commit release-please reads (AGENTS.md)
+R4.3: release-please bumps the manifests, writes CHANGELOG.md and tags on merge instead of jb bump and jb tag (AGENTS.md)
