@@ -1,5 +1,7 @@
 // The "?" sheet: every shortcut and format, in two columns.
 
+import { version } from "../package.json";
+
 type Row = [label: string, keys: string[], kind?: "keys" | "syntax"];
 type Section = [title: string, rows: Row[]];
 
@@ -115,10 +117,9 @@ export function toggleHelp(): void {
 
   const content = el("div", "help-content");
   const header = el("header", "help-header");
-  header.append(
-    el("h2", "help-title", "Shortcuts"),
-    el("span", "help-hint", "Esc or click to close"),
-  );
+  const heading = el("div", "help-heading");
+  heading.append(el("h2", "help-title", "Shortcuts"), el("span", "help-version", `v${version}`));
+  header.append(heading, el("span", "help-hint", "Esc or click to close"));
   const columns = el("div", "help-columns");
   const left = el("div", "help-column");
   const right = el("div", "help-column");
