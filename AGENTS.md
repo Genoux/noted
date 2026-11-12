@@ -60,6 +60,17 @@ Read `PRODUCT.md` first.
   when the bytes differ). The release ships only the binary, so the icon
   copied there by hand on 11-07 was still the Tauri scaffold icon after the
   rebrand. Guards against: an icon change that never reaches the launcher.
+- 2026-11-12: the Linux launcher sizes (`32x32`, `128x128`, `128x128@2x`)
+  are rendered with the tile at 896/1024 of the canvas, not the source's
+  824/1024. Measured on the owner's machine: the icon theme draws Slack,
+  Chrome and Zen at 896/1024, so Noted at Apple's 824 sat smaller beside
+  them. `icon.png` and `icon.icns` keep 824, which is what macOS expects.
+  `scripts/icons` does the scaling from the one source SVG.
+- 2026-11-12: the Linux tray n is scaled to 0.925 of its first size, 24.5%
+  ink, so it weighs the same as the owner's other tray icons (jb-toolkit
+  R10: 22%, up to 25% for a compact mark). At 28.7% it looked oversized
+  in the tray and at 22% a little small, both checked by eye. The macOS
+  template image is unchanged.
 - 2026-11-10: release-please uses `"versioning": "prerelease"`. With the
   default strategy, two fixes on `0.1.0-alpha.4` became `0.1.1-alpha.4`
   (patch bumped, prerelease suffix kept). Forcing the version with an empty
