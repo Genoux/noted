@@ -557,9 +557,20 @@ footer {
   font-weight: 600;
 }
 
-.help-hint {
+.help-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.help-hint,
+.help-version {
   color: var(--tertiary);
   font-size: 11px;
+}
+
+.help-version {
+  font-variant-numeric: tabular-nums;
 }
 
 .help-columns {
