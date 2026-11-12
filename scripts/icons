@@ -10,6 +10,20 @@ pnpm tauri icon "$icons/icon.png" --output "$icons" >/dev/null 2>&1
 # Only macOS and Linux are supported: drop the Windows, iOS and Android sizes.
 rm -rf "$icons"/Square*Logo.png "$icons/StoreLogo.png" "$icons/icon.ico" "$icons/64x64.png" "$icons/android" "$icons/ios"
 
+# Linux launcher: the tile fills 896/1024 of the canvas, the grid Linux icon
+# themes draw Slack, Chrome and Zen on; the source is on Apple's 824/1024.
+# Render larger by 896/824 and keep the centre.
+linux_icon() {
+  local size=$1 rendered=$((($1 * 896 + 412) / 824))
+  local overhang=$((rendered - size))
+  local offset="-$((overhang / 2)).$((overhang % 2 * 5))"
+  rsvg-convert -w "$rendered" -h "$rendered" --page-width "$size" --page-height "$size" \
+    --left="$offset" --top="$offset" "$icons/source/app-icon.svg" -o "$icons/$2"
+}
+linux_icon 32 32x32.png
+linux_icon 128 128x128.png
+linux_icon 256 128x128@2x.png
+
 # macOS menu bar: an 18 pt template image at 2x; macOS tints it to the bar.
 rsvg-convert -w 36 -h 36 "$icons/source/tray-template.svg" -o "$icons/tray-template.png"
 # Linux tray: white, for a dark bar.
