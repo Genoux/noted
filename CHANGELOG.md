@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.0-alpha.6](https://github.com/Genoux/noted/compare/v0.1.0-alpha.5...v0.1.0-alpha.6) (2026-11-12)
+
+
+### Features
+
+* show the version in the shortcuts sheet ([70ec3df](https://github.com/Genoux/noted/commit/70ec3dff05728981211a42cc8dd647c5acf64244))
+
+
+### Bug Fixes
+
+* size the launcher and tray icons like the other apps ([e365440](https://github.com/Genoux/noted/commit/e3654408238f4379c7a2612fb4e4bdc86661e1df))
+* size the macos menu bar icon like the linux tray one ([7853061](https://github.com/Genoux/noted/commit/78530619e3ea18a7edd08d4bd2f27f2028a4389b))
+
 ## [0.1.0-alpha.5](https://github.com/Genoux/noted/compare/v0.1.0-alpha.4...v0.1.0-alpha.5) (2026-11-10)
 
 
