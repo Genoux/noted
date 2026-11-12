@@ -70,7 +70,8 @@ Read `PRODUCT.md` first.
   ink, so it weighs the same as the owner's other tray icons (jb-toolkit
   R10: 22%, up to 25% for a compact mark). At 28.7% it looked oversized
   in the tray and at 22% a little small, both checked by eye. The macOS
-  template image is unchanged.
+  template image uses the same size; it was rendered on Linux and has not
+  been looked at in a Mac menu bar.
 - 2026-11-10: release-please uses `"versioning": "prerelease"`. With the
   default strategy, two fixes on `0.1.0-alpha.4` became `0.1.1-alpha.4`
   (patch bumped, prerelease suffix kept). Forcing the version with an empty
