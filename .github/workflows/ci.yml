@@ -75,3 +75,10 @@ jobs:
       - name: All jobs passed
         run: |
           [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "false" ]]
+
+  # jb-toolkit's standard checks (jb check --ci, secret scan); the build and
+  # scripts/check stay in the job above, which needs this project's setup.
+  standard:
+    uses: Genoux/jb-toolkit/.github/workflows/verify.yml@main
+    with:
+      scripts-check: false
