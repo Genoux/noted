@@ -10,6 +10,7 @@ use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut,
 use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 
 const MAIN: &str = "main";
+pub const TRAY_ID: &str = "noted";
 
 fn window<R: Runtime>(app: &AppHandle<R>) -> Option<WebviewWindow<R>> {
     app.get_webview_window(MAIN)
@@ -75,24 +76,27 @@ pub fn register_hotkey<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     Ok(())
 }
 
+pub fn register_tray_menu<R: Runtime>(app: &AppHandle<R>) {
+    app.on_menu_event(|app, event| match event.id.as_ref() {
+        "show" => show(app),
+        "quit" => {
+            // Keep the panel's position and size for next launch.
+            let _ = app.save_window_state(StateFlags::POSITION | StateFlags::SIZE);
+            app.exit(0);
+        }
+        _ => {}
+    });
+}
+
 /// Adds the menu bar icon with Show and Quit.
 pub fn build_tray<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     let show_item = MenuItem::with_id(app, "show", "Show Noted   ⌥Space", true, None::<&str>)?;
     let quit_item = MenuItem::with_id(app, "quit", "Quit Noted", true, Some("CmdOrCtrl+Q"))?;
     let menu = Menu::with_items(app, &[&show_item, &quit_item])?;
 
-    let mut tray = TrayIconBuilder::new()
+    let mut tray = TrayIconBuilder::with_id(TRAY_ID)
         .tooltip("Noted")
-        .menu(&menu)
-        .on_menu_event(|app, event| match event.id.as_ref() {
-            "show" => show(app),
-            "quit" => {
-                // Keep the panel's position and size for next launch.
-                let _ = app.save_window_state(StateFlags::POSITION | StateFlags::SIZE);
-                app.exit(0);
-            }
-            _ => {}
-        });
+        .menu(&menu);
     // macOS opens the menu on a left click, like every menu bar icon; Linux
     // trays leave the menu to the right click, so the left click opens Noted.
     #[cfg(target_os = "linux")]

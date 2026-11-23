@@ -10,7 +10,7 @@ mod remote;
 use noted_core::NoteStore;
 use noted_core::reminder::{Entry, local_now};
 use reminders::Reminders;
-use tauri::{Manager, State};
+use tauri::{AppHandle, Manager, State};
 
 /// Errors crossing the IPC boundary are sent to the frontend as strings.
 type CmdResult<T> = Result<T, String>;
@@ -72,6 +72,31 @@ fn tab_reminders(reminders: State<'_, Reminders>, id: &str) -> Vec<Entry> {
     reminders.with(|book| book.for_tab(id))
 }
 
+#[tauri::command]
+#[allow(clippy::needless_pass_by_value)]
+fn tray_visible(app: AppHandle) -> bool {
+    app.tray_by_id(panel::TRAY_ID).is_some()
+}
+
+#[tauri::command]
+#[allow(clippy::needless_pass_by_value)]
+fn set_tray_visible(app: AppHandle, store: State<'_, NoteStore>, visible: bool) -> CmdResult<()> {
+    let needs_tray = visible && app.tray_by_id(panel::TRAY_ID).is_none();
+    if needs_tray {
+        panel::build_tray(&app).map_err(|e| e.to_string())?;
+    }
+    if let Err(e) = store.set_tray_visible(visible) {
+        if needs_tray {
+            app.remove_tray_by_id(panel::TRAY_ID);
+        }
+        return Err(e.to_string());
+    }
+    if !visible {
+        app.remove_tray_by_id(panel::TRAY_ID);
+    }
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Already running: toggle that panel and exit before Tauri starts.
@@ -93,6 +118,7 @@ pub fn run() {
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             let store = NoteStore::open(&dir).map_err(|e| e.to_string())?;
+            let tray_visible = store.tray_visible().unwrap_or(true);
             app.manage(reminders::load(&store, dir.join("reminders.json")));
             app.manage(store);
             reminders::start_ticker(app.handle().clone());
@@ -112,7 +138,10 @@ pub fn run() {
 
             let handle = app.handle();
             panel::register_hotkey(handle)?;
-            panel::build_tray(handle)?;
+            panel::register_tray_menu(handle);
+            if tray_visible {
+                panel::build_tray(handle)?;
+            }
             panel::hide_on_close(handle);
             remote::listen(handle);
             // `noted --hidden` (e.g. at login) loads the panel off screen, so
@@ -129,6 +158,8 @@ pub fn run() {
             create_tab,
             close_tab,
             tab_reminders,
+            tray_visible,
+            set_tray_visible,
         ])
         .build(tauri::generate_context!());
 
