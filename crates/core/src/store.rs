@@ -5,6 +5,7 @@
 //! notes/<id>.md     one file per tab
 //! notes/tabs.json   tab order (rebuilt from the files if missing or stale)
 //! .trash/           closed tabs, never deleted outright
+//! hide-tray-icon    present when the tray icon is disabled
 //! ```
 
 use std::fmt;
@@ -18,6 +19,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 const NOTES_DIR: &str = "notes";
 const TRASH_DIR: &str = ".trash";
 const ORDER_FILE: &str = "tabs.json";
+const HIDE_TRAY_FILE: &str = "hide-tray-icon";
 /// Single-note file from before tabs existed; becomes the first tab.
 const LEGACY_NOTE: &str = "scratchpad.md";
 const MAX_ID_LEN: usize = 64;
@@ -73,6 +75,23 @@ impl NoteStore {
             fs::rename(legacy, migrated)?;
         }
         Ok(store)
+    }
+
+    pub fn tray_visible(&self) -> Result<bool> {
+        Ok(!self.root.join(HIDE_TRAY_FILE).try_exists()?)
+    }
+
+    pub fn set_tray_visible(&self, visible: bool) -> Result<()> {
+        let path = self.root.join(HIDE_TRAY_FILE);
+        if visible {
+            match fs::remove_file(path) {
+                Err(e) if e.kind() != io::ErrorKind::NotFound => return Err(e.into()),
+                _ => {}
+            }
+        } else {
+            fs::File::create(path)?;
+        }
+        Ok(())
     }
 
     fn notes_dir(&self) -> PathBuf {
@@ -249,6 +268,18 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let store = NoteStore::open(dir.path()).unwrap();
         (dir, store)
+    }
+
+    #[test]
+    fn tray_visibility_persists_and_defaults_to_visible() {
+        let (dir, store) = store();
+        assert!(store.tray_visible().unwrap());
+        store.set_tray_visible(false).unwrap();
+        let reopened = NoteStore::open(dir.path()).unwrap();
+        assert!(!reopened.tray_visible().unwrap());
+        reopened.set_tray_visible(true).unwrap();
+        reopened.set_tray_visible(true).unwrap();
+        assert!(NoteStore::open(dir.path()).unwrap().tray_visible().unwrap());
     }
 
     #[test]

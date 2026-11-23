@@ -55,6 +55,11 @@ Read `PRODUCT.md` first.
   opened and took focus. ksni also sends the icon as pixels, so Quickshell no
   longer caches a stale icon file by tray id. macOS uses a template image so
   the menu bar tints it; Linux gets a white n for a dark bar.
+- 2026-11-22: hiding the tray icon removes its registration. In tray-icon
+  0.25.1, the ksni visibility setter only changes the StatusNotifierItem
+  status to Passive, leaving the item registered. The menu handler is
+  installed once at startup so rebuilding the icon cannot add duplicate
+  global handlers.
 - 2026-11-10: on Linux the binary writes its own launcher icon at startup
   (`$XDG_DATA_HOME/icons/hicolor/{128x128,256x256}/apps/noted.png`, only
   when the bytes differ). The release ships only the binary, so the icon

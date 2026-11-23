@@ -211,6 +211,44 @@ function footerButton(selector: string, run: (button: HTMLButtonElement) => void
 footerButton("#text-size", () => cycleFontSize(editor.view));
 footerButton("#help", toggleHelp);
 
+const trayToggle = requireEl<HTMLButtonElement>("#tray-toggle");
+const trayStatus = requireEl("#tray-status");
+let trayVisible = false;
+let updatingTray = false;
+
+function renderTray(visible: boolean): void {
+  trayVisible = visible;
+  trayToggle.setAttribute("aria-pressed", String(visible));
+  trayToggle.title = visible ? "Hide tray icon" : "Show tray icon";
+}
+
+invoke<boolean>("tray_visible")
+  .then((visible) => {
+    renderTray(visible);
+    trayToggle.disabled = false;
+  })
+  .catch((error) => {
+    trayStatus.textContent = "Couldn’t load tray icon setting.";
+    console.error("load tray visibility failed:", error);
+  });
+
+trayToggle.addEventListener("mousedown", (event) => event.preventDefault());
+trayToggle.addEventListener("click", async () => {
+  if (updatingTray) return;
+  const visible = !trayVisible;
+  updatingTray = true;
+  trayStatus.textContent = "";
+  try {
+    await invoke("set_tray_visible", { visible });
+    renderTray(visible);
+  } catch (error) {
+    trayStatus.textContent = "Couldn’t change tray icon visibility.";
+    console.error("set tray visibility failed:", error);
+  } finally {
+    updatingTray = false;
+  }
+});
+
 // --- show / hide ----------------------------------------------------------
 
 // Flush pending saves whenever the panel loses focus or hides.

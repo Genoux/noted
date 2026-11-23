@@ -471,43 +471,85 @@ footer {
 
 .footer-actions {
   display: flex;
-  gap: 16px;
-  align-items: center;
+  gap: 18px;
+  align-items: baseline;
 }
 
+/* Each button's layout box is its ink, so the gap alone spaces the row; the
+   padding and matching negative margin keep a comfortable hit area. */
 .footer-btn {
-  display: grid;
-  place-items: center;
-  min-width: 24px;
+  flex: none;
   height: 20px;
-  padding: 0;
+  margin: 0 -6px;
+  padding: 0 6px;
   border: 0;
   border-radius: 4px;
   background: transparent;
   color: var(--tertiary);
+  line-height: 20px;
   transition: color 0.12s ease-out;
 }
 
-.footer-btn:hover {
+.footer-btn:hover,
+.footer-btn:focus-visible {
   color: var(--secondary);
 }
 
-/* Aa sits in a fixed box and grows with the text size, like a level meter. */
+.footer-btn:focus-visible {
+  outline: 1px solid var(--secondary);
+}
+
+/* Measured: the offset centers the glyph on the cap height of the text
+   beside it. Hidden is the tray struck through, like bell and bell-off. */
+.tray-glyph {
+  vertical-align: -2.25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+#tray-toggle[aria-pressed="true"] .tray-body {
+  mask: none;
+}
+
+#tray-toggle[aria-pressed="true"] .tray-slash {
+  display: none;
+}
+
+#tray-status {
+  color: var(--secondary);
+}
+
+#tray-status:not(:empty) + #words {
+  display: none;
+}
+
+/* Aa grows with the text size, like a level meter. Scaled rather than resized:
+   a font-size change moves the baseline inside the fixed line box, so the
+   glyphs drifted against the other footer items. The origin sits on the
+   baseline so every step shares it. */
 #text-size {
-  width: 30px;
-  font: 500 11px / 1 var(--body-font);
+  font: 500 12px / 20px var(--body-font);
 }
 
-[data-text-size="0"] #text-size {
-  font-size: 9px;
+#text-size span {
+  display: block;
+  transform-origin: 50% 70%;
+  transition: transform 0.12s ease-out;
 }
 
-[data-text-size="2"] #text-size {
-  font-size: 13px;
+[data-text-size="0"] #text-size span {
+  transform: scale(0.9);
 }
 
-[data-text-size="3"] #text-size {
-  font-size: 15px;
+[data-text-size="2"] #text-size span {
+  transform: scale(1.12);
+}
+
+[data-text-size="3"] #text-size span {
+  transform: scale(1.25);
 }
 
 @media (prefers-contrast: more) {
