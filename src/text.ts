@@ -97,7 +97,7 @@ export const TEXT_SIZES = [17, 20, 24, 28] as const;
 export const DEFAULT_TEXT_SIZE = 20;
 
 /** Index of the preset nearest to `size`. */
-export function textSizeIndex(size: number): number {
+function textSizeIndex(size: number): number {
   let best = 0;
   TEXT_SIZES.forEach((s, i) => {
     if (Math.abs(s - size) < Math.abs(TEXT_SIZES[best] - size)) best = i;

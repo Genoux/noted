@@ -456,11 +456,16 @@ button {
    Footer
    ------------------------------------------------------------------------- */
 
+/* One baseline across the footer: centering each side on its own box left
+   the word count 2px below the buttons. Wrapping makes the single line an
+   alignable box, which align-content centers. */
 footer {
   display: flex;
   flex: none;
+  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: center;
+  align-content: center;
+  align-items: baseline;
   height: 48px;
   padding: 0 22px;
   color: var(--tertiary);
@@ -486,7 +491,7 @@ footer {
   border-radius: 4px;
   background: transparent;
   color: var(--tertiary);
-  line-height: 20px;
+  font: 500 13px / 20px var(--body-font);
   transition: color 0.12s ease-out;
 }
 
@@ -524,32 +529,6 @@ footer {
 
 #tray-status:not(:empty) + #words {
   display: none;
-}
-
-/* Aa grows with the text size, like a level meter. Scaled rather than resized:
-   a font-size change moves the baseline inside the fixed line box, so the
-   glyphs drifted against the other footer items. The origin sits on the
-   baseline so every step shares it. */
-#text-size {
-  font: 500 12px / 20px var(--body-font);
-}
-
-#text-size span {
-  display: block;
-  transform-origin: 50% 70%;
-  transition: transform 0.12s ease-out;
-}
-
-[data-text-size="0"] #text-size span {
-  transform: scale(0.9);
-}
-
-[data-text-size="2"] #text-size span {
-  transform: scale(1.12);
-}
-
-[data-text-size="3"] #text-size span {
-  transform: scale(1.25);
 }
 
 @media (prefers-contrast: more) {
