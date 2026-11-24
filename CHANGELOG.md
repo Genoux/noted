@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-alpha.7](https://github.com/Genoux/noted/compare/v0.1.0-alpha.6...v0.1.0-alpha.7) (2026-11-24)
+
+
+### Bug Fixes
+
+* give the footer buttons one size and baseline ([427e2d6](https://github.com/Genoux/noted/commit/427e2d665b383944b2d2c935663471b13a1b6718))
+
 ## [0.1.0-alpha.6](https://github.com/Genoux/noted/compare/v0.1.0-alpha.5...v0.1.0-alpha.6) (2026-11-23)
 
 
