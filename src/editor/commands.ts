@@ -8,7 +8,6 @@ import {
   nextTextSize,
   stepTextSize,
   TEXT_SIZES,
-  textSizeIndex,
   toggleWrap,
 } from "../text";
 import { toggleTaskCommand } from "./tasks";
@@ -39,9 +38,7 @@ const FONT_KEY = "noted.fontSize";
 
 /** Applies the saved (or given) text size to the page. */
 export function applyFontSize(size: number = readFontSize()): void {
-  const root = document.documentElement;
-  root.style.setProperty("--font-size", `${size}px`);
-  root.dataset.textSize = String(textSizeIndex(size));
+  document.documentElement.style.setProperty("--font-size", `${size}px`);
 }
 
 function readFontSize(): number {
