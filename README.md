@@ -1,49 +1,24 @@
 # Noted
 
-A quick scratchpad that lives one keypress away. Summon it, jot the thought,
-dismiss it. Notes are plain markdown files on disk.
+A scratchpad one keypress away. Open it, write the thought down, close it.
 
-> Working name. Built with Rust + Tauri for macOS and Linux (Wayland first).
-> Inspired by [Wisp](https://github.com/sulemaanhamza/wisp).
+A Linux (Wayland) port of [Wisp](https://github.com/sulemaanhamza/wisp),
+written in Rust and Tauri.
 
-## Status
+## Install
 
-Early development. See the [roadmap](#roadmap).
+Grab the latest build from [Releases](https://github.com/Genoux/noted/releases)
+and put `noted` on your path. Bind a key in your compositor to run it. Running
+it again shows or hides the panel.
 
 ## Develop
 
-Requires Rust (pinned in `rust-toolchain.toml`), Node 22+ and pnpm.
-On Linux, also install the WebKitGTK, tray and SVG libraries:
-
-```sh
-# Arch
-sudo pacman -S --needed base-devel webkit2gtk-4.1 libappindicator-gtk3 librsvg openssl
-# Debian / Ubuntu
-sudo apt install libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
-```
-
 ```sh
 pnpm install
-pnpm tauri dev      # run the app
-cargo test --workspace
-pnpm lint
+pnpm tauri dev
+scripts/check
 ```
-
-## Layout
-
-| Path          | What lives there                                      |
-| ------------- | ----------------------------------------------------- |
-| `crates/core` | Platform-independent logic (storage, parsing). No UI. |
-| `src-tauri`   | App shell: window, hotkey, tray, IPC commands.        |
-| `src`         | Editor frontend (TypeScript).                         |
-
-## Roadmap
-
-1. **MVP (macOS)**: global hotkey, floating panel, tabs, live markdown, checklists, find, tray
-2. **Daily driver**: version history, inbox archive, sync folder, themes, fonts
-3. **Smart**: reminders, inline maths, emoji shortcodes, auto-update
-4. **Linux/Wayland**: `noted toggle` / `noted add`, GlobalShortcuts portal, packaging
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT
